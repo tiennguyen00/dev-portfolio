@@ -1,8 +1,4 @@
-import {
-  EffectComposer,
-  SelectiveBloom,
-  DepthOfField,
-} from "@react-three/postprocessing";
+import { EffectComposer, SelectiveBloom } from "@react-three/postprocessing";
 import { useEffect, useRef, useState } from "react";
 import * as THREE from "three";
 
@@ -26,7 +22,7 @@ const Effect = ({
       <ambientLight ref={lightRef} intensity={0.5} />
       {points && points.length > 0 && lightRef.current && (
         <EffectComposer multisampling={0}>
-          <DepthOfField focusDistance={0} focalLength={0.25} bokehScale={1} />
+          {/* <DepthOfField focusDistance={0} focalLength={0.25} bokehScale={1} /> */}
           <SelectiveBloom
             lights={[lightRef.current]}
             selection={points}

@@ -10,7 +10,7 @@ import "./shaders/SimMaterial";
 import "./shaders/WireframeMaterial";
 import { wireframeVertexShader, wireframeFragmentShader } from "./shaders";
 
-const size = 256,
+const size = 64,
   number = size * size;
 
 interface ExperienceProps {
@@ -95,7 +95,7 @@ const Experience = ({ cubePos, pointsRef }: ExperienceProps) => {
 
     scene1.rotation.x = -Math.PI / 10;
     mixer.clipAction(clips[0]).play();
-    mixer.timeScale = 0.546;
+    mixer.timeScale = 0.875;
   }, []);
 
   let renderTarget = useFBO(size, size, {
@@ -145,7 +145,7 @@ const Experience = ({ cubePos, pointsRef }: ExperienceProps) => {
       state.gl.render(sceneFBO.current, cameraFBO.current);
       simMaterial.current.uniforms.uDirections.value = directions.texture;
 
-      // // POSITIONS
+      // POSITIONS
       simMaterial.current.uniforms.uRenderMode.value = 2;
       simMaterial.current.uniforms.uSource.value = new THREE.Vector3(0, 0, 0);
       state.gl.setRenderTarget(initPos);

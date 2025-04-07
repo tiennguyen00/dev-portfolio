@@ -75,7 +75,7 @@ void main() {
 
     vec4 mvPosition = modelViewMatrix * vec4( newpos, 1.0 );
 
-    gl_PointSize = mix(10.0, 40.0, rand(vUv)) * (2.0 / -mvPosition.z);
+    gl_PointSize = mix(40.0, 80.0, rand(vUv)) * (2.0 / -mvPosition.z);
 
     gl_Position = projectionMatrix * mvPosition;
 

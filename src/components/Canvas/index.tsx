@@ -14,7 +14,7 @@ const CanvasPage = () => {
     <Canvas
       id="canvas-12323"
       style={{ width: "100%", height: "100dvh" }}
-      camera={{ position: [0, 0, 40], fov: 70, near: 0.01, far: 100 }}
+      camera={{ position: [0, 0, 40], fov: 70, near: 0.01, far: 50 }}
       gl={{
         alpha: true,
         antialias: false,
@@ -29,8 +29,6 @@ const CanvasPage = () => {
       <Experience cubePos={cubePos} pointsRef={pointsRef} />
       <Horse />
       <Effect pointsRef={pointsRef} />
-      <ambientLight intensity={0.5} />
-      <pointLight position={[10, 10, 10]} intensity={1} />
     </Canvas>
   );
 };
