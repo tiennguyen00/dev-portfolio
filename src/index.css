@@ -1,7 +1,61 @@
 @import "tailwindcss";
 
+@font-face {
+  font-family: "NotoSans";
+  src: local("NotoSansJP-Regular"),
+    url("./assets/fonts/NotoSans/NotoSansJP-Regular.ttf") format("truetype");
+  font-weight: 400;
+  font-style: normal;
+  font-display: swap;
+}
+
+@font-face {
+  font-family: "NotoSans";
+  src: local("NotoSansJP-Light"),
+    url("./assets/fonts/NotoSans/NotoSansJP-Light.ttf") format("truetype");
+  font-weight: 300;
+  font-style: normal;
+  font-display: swap;
+}
+
+@font-face {
+  font-family: "NotoSans";
+  src: local("NotoSansJP-Medium"),
+    url("./assets/fonts/NotoSans/NotoSansJP-Medium.ttf") format("truetype");
+  font-weight: 500;
+  font-style: normal;
+  font-display: swap;
+}
+
+@font-face {
+  font-family: "NotoSans";
+  src: local("NotoSansJP-SemiBold"),
+    url("./assets/fonts/NotoSans/NotoSansJP-SemiBold.ttf") format("truetype");
+  font-weight: 600;
+  font-style: normal;
+  font-display: swap;
+}
+
+@font-face {
+  font-family: "NotoSans";
+  src: local("NotoSansJP-Bold"),
+    url("./assets/fonts/NotoSans/NotoSansJP-Bold.ttf") format("truetype");
+  font-weight: 700;
+  font-style: normal;
+  font-display: swap;
+}
+
+@font-face {
+  font-family: "NotoSans";
+  src: local("NotoSansJP-ExtraBold"),
+    url("./assets/fonts/NotoSans/NotoSansJP-ExtraBold.ttf") format("truetype");
+  font-weight: 800;
+  font-style: normal;
+  font-display: swap;
+}
+
 :root {
-  font-family: system-ui, Avenir, Helvetica, Arial, sans-serif;
+  font-family: "NotoSans", system-ui, sans-serif;
   line-height: 1.5;
   font-weight: 400;
 

@@ -3,7 +3,7 @@
 import * as THREE from "three";
 import { useEffect, useMemo, useRef } from "react";
 import { useFBO, useGLTF, useAnimations } from "@react-three/drei";
-import { useFrame, createPortal } from "@react-three/fiber";
+import { useFrame, createPortal, useThree } from "@react-three/fiber";
 import { lerp } from "three/src/math/MathUtils.js";
 import "./shaders/RenderMaterial";
 import "./shaders/SimMaterial";
@@ -19,6 +19,7 @@ interface ExperienceProps {
 }
 
 const Experience = ({ cubePos, pointsRef }: ExperienceProps) => {
+  const { mouse } = useThree();
   const init = useRef(false);
   const v = useRef(new THREE.Vector3(0, 0, 0));
   const v1 = useRef(new THREE.Vector3(0, 0, 0));
@@ -65,7 +66,6 @@ const Experience = ({ cubePos, pointsRef }: ExperienceProps) => {
               position2: { value: m.position },
               uTime: { value: 0 },
             },
-            skinning: true,
           });
 
           wireframeMaterials.push(material);
@@ -219,6 +219,28 @@ const Experience = ({ cubePos, pointsRef }: ExperienceProps) => {
     wireframeMaterials.forEach((material) => {
       material.uniforms.uTime.value = state.clock.elapsedTime;
     });
+
+    // Rotate the model based on mouse position
+    if (scene1) {
+      const targetRotationY = mouse.x * 0.654;
+      const targetRotationX = -mouse.y * 0.654;
+
+      // Apply smooth lerping to rotation
+      scene1.rotation.y += (targetRotationY - scene1.rotation.y) * 0.1;
+      scene1.rotation.x += (targetRotationX - scene1.rotation.x) * 0.1;
+
+      // Scale based on distance from origin
+      const distanceFromCenter = Math.sqrt(
+        mouse.x * mouse.x + mouse.y * mouse.y
+      );
+      // Calculate target scale (1 at origin, smaller as distance increases)
+      const targetScale = 1 - distanceFromCenter * 0.25; // Adjust the 0.25 to control scale reduction rate
+
+      // Apply smooth scaling with lerp
+      scene1.scale.x += (targetScale - scene1.scale.x) * 0.1;
+      scene1.scale.y += (targetScale - scene1.scale.y) * 0.1;
+      scene1.scale.z += (targetScale - scene1.scale.z) * 0.1;
+    }
   });
 
   // ================================

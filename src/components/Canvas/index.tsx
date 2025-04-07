@@ -1,5 +1,4 @@
 import { Canvas } from "@react-three/fiber";
-import { OrbitControls } from "@react-three/drei";
 import Experience from "./Experience";
 import { useRef } from "react";
 import * as THREE from "three";
@@ -25,7 +24,7 @@ const CanvasPage = () => {
     >
       <color attach="background" args={["#222"]} />
       {/* <StatsGl className="top-0 left-0 fixed" trackGPU /> */}
-      <OrbitControls />
+      {/* <OrbitControls /> */}
       <Experience cubePos={cubePos} pointsRef={pointsRef} />
       <Horse />
       <Effect pointsRef={pointsRef} />

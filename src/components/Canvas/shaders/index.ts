@@ -75,7 +75,7 @@ void main() {
 
     vec4 mvPosition = modelViewMatrix * vec4( newpos, 1.0 );
 
-    gl_PointSize = mix(40.0, 80.0, rand(vUv)) * (2.0 / -mvPosition.z);
+    gl_PointSize = mix(20.0, 40.0, rand(vUv)) * (2.0 / -mvPosition.z);
 
     gl_Position = projectionMatrix * mvPosition;
 
@@ -90,7 +90,7 @@ void main() {
     if(vLife<0.88) discard;
     vec4 color = texture2D( uTexture, vUv );
     // Increase brightness for bloom and use a more vibrant blue
-    vec3 glowColor = vec3(0.08, 0.53, 0.96) * 3.5; // Increased multiplier to make points brighter
+    vec3 glowColor = vec3(0.08, 0.53, 0.96) * 4.5; // Increased multiplier to make points brighter
     gl_FragColor = vec4(glowColor, 0.64 * vLife);
 }
 `;

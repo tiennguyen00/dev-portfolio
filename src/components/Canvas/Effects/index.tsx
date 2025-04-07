@@ -27,7 +27,7 @@ const Effect = ({
             lights={[lightRef.current]}
             selection={points}
             intensity={1.46}
-            luminanceThreshold={0.546}
+            luminanceThreshold={0.9}
             luminanceSmoothing={0.3}
             mipmapBlur
             selectionLayer={BLOOM_LAYER}
