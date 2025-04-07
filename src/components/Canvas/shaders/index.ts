@@ -48,7 +48,7 @@ void main() {
         float rnd1 = rand(vUv) - 0.5;
         float rnd2 = rand(vUv + vec2(0.1,0.1)) - 0.5;
         float rnd3 = rand(vUv + vec2(0.3,0.3)) - 0.5;
-        gl_FragColor = vec4( uSource + vec3(rnd1,rnd2,rnd3)*0.5, 1.);
+        gl_FragColor = vec4( uSource + vec3(rnd1,rnd2,rnd3)*0.854, 1.);
     }
 }
 `;
@@ -59,6 +59,9 @@ varying float vLife;
 uniform float time;
 
 uniform sampler2D uTexture;
+float rand(vec2 co){
+    return fract(sin(dot(co, vec2(12.9898, 78.233))) * 43758.5453);
+}
 
 void main() {
 
@@ -72,7 +75,7 @@ void main() {
 
     vec4 mvPosition = modelViewMatrix * vec4( newpos, 1.0 );
 
-    gl_PointSize =  50.*( 2.0 / -mvPosition.z );
+    gl_PointSize = mix(10.0, 40.0, rand(vUv)) * (2.0 / -mvPosition.z);
 
     gl_Position = projectionMatrix * mvPosition;
 
@@ -86,8 +89,9 @@ varying float vLife;
 void main() {
     if(vLife<0.88) discard;
     vec4 color = texture2D( uTexture, vUv );
-    gl_FragColor = vec4( 0.0784, 0.5255, 0.9608, 0.6*vLife );
-    // gl_FragColor = color;
+    // Increase brightness for bloom and use a more vibrant blue
+    vec3 glowColor = vec3(0.2, 0.8, 1.0) * 2.0; // Increased multiplier to make points brighter
+    gl_FragColor = vec4(glowColor, 0.84 * vLife);
 }
 `;
 

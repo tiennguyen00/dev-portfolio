@@ -1,22 +1,24 @@
 /* eslint-disable @typescript-eslint/ban-ts-comment */
 // @ts-nocheck
 import * as THREE from "three";
-import { useEffect, useMemo, useRef } from "react";
+import { useEffect, useMemo, useRef, forwardRef } from "react";
 import { useFBO, useGLTF, useAnimations } from "@react-three/drei";
 import { useFrame, createPortal } from "@react-three/fiber";
 import { EffectComposer, Bloom } from "@react-three/postprocessing";
 import { lerp } from "three/src/math/MathUtils.js";
 import "./shaders/RenderMaterial";
 import "./shaders/SimMaterial";
+import { LayerMaterial } from "./effects";
 
 const size = 512,
   number = size * size;
 
-const Experience = ({
-  cubePos,
-}: {
+interface ExperienceProps {
   cubePos: React.MutableRefObject<THREE.Vector3>;
-}) => {
+  pointsRef: React.RefObject<THREE.Points>;
+}
+
+const Experience = ({ cubePos, pointsRef }: ExperienceProps) => {
   const init = useRef(false);
   const v = useRef(new THREE.Vector3(0, 0, 0));
   const v1 = useRef(new THREE.Vector3(0, 0, 0));
@@ -51,7 +53,7 @@ const Experience = ({
     scene1.traverse((m) => {
       if (m.isMesh) {
         m.material = new THREE.MeshBasicMaterial({
-          color: 0x1486f5,
+          color: 0x1486f5ff,
           wireframe: true,
         });
       }
@@ -145,7 +147,7 @@ const Experience = ({
     state.gl.render(sceneFBO.current, cameraFBO.current);
 
     // BEGIN EMITTER
-    const emit = 3;
+    const emit = 2;
     state.gl.autoClear = false;
 
     emitters.current.forEach((emitter) => {
@@ -238,14 +240,6 @@ const Experience = ({
 
   return (
     <>
-      <EffectComposer>
-        <Bloom
-          intensity={5}
-          luminanceThreshold={0}
-          luminanceSmoothing={0.9}
-          mipmapBlur
-        />
-      </EffectComposer>
       <primitive object={scene1} />
       {createPortal(
         <points>
@@ -267,7 +261,7 @@ const Experience = ({
         </points>,
         sceneFBO.current
       )}
-      <points>
+      <points ref={pointsRef}>
         <bufferGeometry ref={geometry}>
           <bufferAttribute
             attach="attributes-position"
@@ -287,10 +281,13 @@ const Experience = ({
           depthWrite={false}
           depthTest={false}
           transparent
+          toneMapped={false}
         />
       </points>
     </>
   );
 };
+
+Experience.displayName = "Experience";
 
 export default Experience;
