@@ -4,7 +4,7 @@ import Experience from "./Experience";
 import { useRef } from "react";
 import * as THREE from "three";
 import Horse from "./Horse";
-import Effect from "./effects";
+import Effect from "./Effects";
 
 const CanvasPage = () => {
   const cubePos = useRef<THREE.Vector3>(new THREE.Vector3());

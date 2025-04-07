@@ -90,8 +90,8 @@ void main() {
     if(vLife<0.88) discard;
     vec4 color = texture2D( uTexture, vUv );
     // Increase brightness for bloom and use a more vibrant blue
-    vec3 glowColor = vec3(0.2, 0.8, 1.0) * 2.0; // Increased multiplier to make points brighter
-    gl_FragColor = vec4(glowColor, 0.84 * vLife);
+    vec3 glowColor = vec3(0.08, 0.53, 0.96) * 3.5; // Increased multiplier to make points brighter
+    gl_FragColor = vec4(glowColor, 0.64 * vLife);
 }
 `;
 
@@ -214,3 +214,54 @@ void main()
 }
 
 `;
+
+const wireframeVertexShader = `
+  #include <skinning_pars_vertex>
+  
+  uniform float uTime;
+  varying vec3 vPosition;
+  
+  void main() {
+    #include <skinbase_vertex>
+    #include <begin_vertex>
+    #include <skinning_vertex>
+    
+    vec4 worldPosition = modelMatrix * vec4(transformed, 1.0);
+    vPosition = worldPosition.xyz;
+    gl_Position = projectionMatrix * modelViewMatrix * vec4(transformed, 1.0);
+  }
+`;
+
+const wireframeFragmentShader = `
+  uniform float uTime;
+  varying vec3 vPosition;
+  
+  void main() {
+    vec3 baseColor = vec3(0.0, 1.5, 1.8);      // Super bright cyan
+    vec3 secondColor = vec3(0.0, 0.2, 0.8);    // Purple/magenta
+    
+    // Create a traveling wave effect based on time
+    float speed = 5.;
+    float waveWidth = 15.0;
+    float distanceFromCenter = length(vPosition.xz);
+    
+    // Create a moving gradient with repeating waves
+    float travelingWave = mod(distanceFromCenter - uTime * speed, 20.0);
+    float gradient = smoothstep(0.0, waveWidth, travelingWave) * (1.0 - smoothstep(waveWidth, waveWidth * 2.0, travelingWave));
+    
+    // Mix between the two colors based on the traveling gradient
+    vec3 finalColor = mix(baseColor, secondColor, gradient);
+    
+    // Add brightness based on the wave position
+    float brightness = 1.0 + gradient * 1.5;
+    finalColor *= brightness;
+    
+    // Varying transparency based on gradient
+    float alpha = 0.564;
+    alpha *= mix(0.6, 1.0, gradient);
+    
+    gl_FragColor = vec4(finalColor, alpha);
+  }
+`;
+
+export { wireframeVertexShader, wireframeFragmentShader };

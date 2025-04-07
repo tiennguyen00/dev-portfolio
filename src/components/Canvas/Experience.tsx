@@ -1,16 +1,16 @@
 /* eslint-disable @typescript-eslint/ban-ts-comment */
 // @ts-nocheck
 import * as THREE from "three";
-import { useEffect, useMemo, useRef, forwardRef } from "react";
+import { useEffect, useMemo, useRef } from "react";
 import { useFBO, useGLTF, useAnimations } from "@react-three/drei";
 import { useFrame, createPortal } from "@react-three/fiber";
-import { EffectComposer, Bloom } from "@react-three/postprocessing";
 import { lerp } from "three/src/math/MathUtils.js";
 import "./shaders/RenderMaterial";
 import "./shaders/SimMaterial";
-import { LayerMaterial } from "./effects";
+import "./shaders/WireframeMaterial";
+import { wireframeVertexShader, wireframeFragmentShader } from "./shaders";
 
-const size = 512,
+const size = 256,
   number = size * size;
 
 interface ExperienceProps {
@@ -48,14 +48,30 @@ const Experience = ({ cubePos, pointsRef }: ExperienceProps) => {
   const { scene: scene1, animations } = useGLTF("/models/test.glb");
   const { clips, mixer } = useAnimations(animations, scene1);
 
+  const wireframeMaterials: THREE.ShaderMaterial[] = [];
+
   useEffect(() => {
     let index = 0;
     scene1.traverse((m) => {
-      if (m.isMesh) {
-        m.material = new THREE.MeshBasicMaterial({
-          color: 0x1486f5ff,
-          wireframe: true,
-        });
+      if (m.isSkinnedMesh) {
+        if (m.name.startsWith("Plane")) {
+          const material = new THREE.ShaderMaterial({
+            vertexShader: wireframeVertexShader,
+            fragmentShader: wireframeFragmentShader,
+            wireframe: true,
+            transparent: true,
+            toneMapped: false,
+            uniforms: {
+              position2: { value: m.position },
+              uTime: { value: 0 },
+            },
+            skinning: true,
+          });
+
+          wireframeMaterials.push(material);
+
+          m.material = material;
+        }
       }
       if (m.isMesh && m.geometry.attributes.position.array.length < 120) {
         if (
@@ -78,9 +94,8 @@ const Experience = ({ cubePos, pointsRef }: ExperienceProps) => {
     });
 
     scene1.rotation.x = -Math.PI / 10;
-
     mixer.clipAction(clips[0]).play();
-    mixer.timeScale = 0.65;
+    mixer.timeScale = 0.546;
   }, []);
 
   let renderTarget = useFBO(size, size, {
@@ -147,7 +162,7 @@ const Experience = ({ cubePos, pointsRef }: ExperienceProps) => {
     state.gl.render(sceneFBO.current, cameraFBO.current);
 
     // BEGIN EMITTER
-    const emit = 2;
+    const emit = 1;
     state.gl.autoClear = false;
 
     emitters.current.forEach((emitter) => {
@@ -199,6 +214,11 @@ const Experience = ({ cubePos, pointsRef }: ExperienceProps) => {
     if (mixer) {
       mixer.update(delta);
     }
+
+    // Update all wireframe materials with current time
+    wireframeMaterials.forEach((material) => {
+      material.uniforms.uTime.value = state.clock.elapsedTime;
+    });
   });
 
   // ================================

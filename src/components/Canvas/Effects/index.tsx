@@ -1,29 +1,40 @@
-import { EffectComposer, SelectiveBloom } from "@react-three/postprocessing";
-import { useRef } from "react";
+import {
+  EffectComposer,
+  SelectiveBloom,
+  DepthOfField,
+} from "@react-three/postprocessing";
+import { useEffect, useRef, useState } from "react";
 import * as THREE from "three";
+
+export const BLOOM_LAYER = 1;
 
 const Effect = ({
   pointsRef,
 }: {
   pointsRef: React.RefObject<THREE.Points>;
 }) => {
-  const lightRef = useRef<THREE.PointLight>(new THREE.PointLight());
-  const boxRef = useRef<THREE.Mesh>(new THREE.Mesh());
+  const lightRef = useRef<THREE.PointLight>(null);
+  const [points, setPoints] = useState<Array<THREE.Points>>([]);
 
+  useEffect(() => {
+    if (pointsRef.current) {
+      setPoints([pointsRef.current]);
+    }
+  }, [pointsRef.current]);
   return (
     <>
-      <pointLight ref={lightRef} position={[10, 10, 10]} intensity={1} />
-      {pointsRef.current && (
-        <EffectComposer>
+      <ambientLight ref={lightRef} intensity={0.5} />
+      {points && points.length > 0 && lightRef.current && (
+        <EffectComposer multisampling={0}>
+          <DepthOfField focusDistance={0} focalLength={0.25} bokehScale={1} />
           <SelectiveBloom
-            key={pointsRef.current.uuid}
             lights={[lightRef.current]}
-            selection={[boxRef.current, pointsRef.current]}
-            selectionLayer={1}
-            intensity={1.5}
+            selection={points}
+            intensity={1.46}
             luminanceThreshold={0.546}
             luminanceSmoothing={0.3}
             mipmapBlur
+            selectionLayer={BLOOM_LAYER}
           />
         </EffectComposer>
       )}
