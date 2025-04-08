@@ -7,7 +7,6 @@ import { useFrame, createPortal, useThree } from "@react-three/fiber";
 import { lerp } from "three/src/math/MathUtils.js";
 import "./shaders/RenderMaterial";
 import "./shaders/SimMaterial";
-import "./shaders/WireframeMaterial";
 import { wireframeVertexShader, wireframeFragmentShader } from "./shaders";
 
 const size = 64,
@@ -16,10 +15,11 @@ const size = 64,
 interface ExperienceProps {
   cubePos: React.MutableRefObject<THREE.Vector3>;
   pointsRef: React.RefObject<THREE.Points>;
+  scrollRef: React.RefObject<number>;
 }
 
-const Experience = ({ cubePos, pointsRef }: ExperienceProps) => {
-  const { mouse } = useThree();
+const Experience = ({ cubePos, pointsRef, scrollRef }: ExperienceProps) => {
+  const { mouse, viewport } = useThree();
   const init = useRef(false);
   const v = useRef(new THREE.Vector3(0, 0, 0));
   const v1 = useRef(new THREE.Vector3(0, 0, 0));
@@ -63,8 +63,9 @@ const Experience = ({ cubePos, pointsRef }: ExperienceProps) => {
             transparent: true,
             toneMapped: false,
             uniforms: {
-              position2: { value: m.position },
-              uTime: { value: 0 },
+              position2: new THREE.Uniform(m.position),
+              uTime: new THREE.Uniform(0),
+              uProgress: new THREE.Uniform(0),
             },
           });
 
@@ -93,7 +94,7 @@ const Experience = ({ cubePos, pointsRef }: ExperienceProps) => {
       }
     });
 
-    scene1.rotation.x = -Math.PI / 10;
+    // scene1.rotation.x = -Math.PI / 10;
     mixer.clipAction(clips[0]).play();
     mixer.timeScale = 0.875;
   }, []);
@@ -126,8 +127,18 @@ const Experience = ({ cubePos, pointsRef }: ExperienceProps) => {
     type: THREE.FloatType,
   });
 
+  // Create the path tragetry
+  const path = new THREE.CatmullRomCurve3([
+    new THREE.Vector3(0, 0, 0),
+    new THREE.Vector3(0, 0, 30),
+    new THREE.Vector3(0, viewport.height / 2 - 10, 10),
+  ]);
+  //===============================================
+
   useFrame((state, delta) => {
     const elapsedTime = state.clock.elapsedTime;
+    const mappedProgress = Math.min(1, scrollRef.current / 0.2);
+    const currentPathVector = path.getPointAt(mappedProgress);
 
     if (scene1) {
       scene1.position.copy(cubePos.current).multiplyScalar(1.5);
@@ -186,6 +197,8 @@ const Experience = ({ cubePos, pointsRef }: ExperienceProps) => {
       simMaterial.current.uniforms.uRenderMode.value = 2;
       if (flip) v1.current.x *= -1;
       simMaterial.current.uniforms.uSource.value = v1.current;
+      simMaterial.current.uniforms.uSource.value =
+        simMaterial.current.uniforms.uSource.value.add(currentPathVector);
       state.gl.setRenderTarget(renderTarget);
       state.gl.render(sceneFBO.current, cameraFBO.current);
 
@@ -208,6 +221,7 @@ const Experience = ({ cubePos, pointsRef }: ExperienceProps) => {
     renderTarget1 = tmp;
 
     material.current.uniforms.uTexture.value = renderTarget.texture;
+    material.current.uniforms.uProgress.value = mappedProgress;
     simMaterial.current.uniforms.uCurrentPosition.value = renderTarget1.texture;
     simMaterial.current.uniforms.uTime.value = elapsedTime;
 
@@ -218,6 +232,7 @@ const Experience = ({ cubePos, pointsRef }: ExperienceProps) => {
     // Update all wireframe materials with current time
     wireframeMaterials.forEach((material) => {
       material.uniforms.uTime.value = state.clock.elapsedTime;
+      material.uniforms.uProgress.value = mappedProgress;
     });
 
     // Rotate the model based on mouse position
@@ -240,6 +255,8 @@ const Experience = ({ cubePos, pointsRef }: ExperienceProps) => {
       scene1.scale.x += (targetScale - scene1.scale.x) * 0.1;
       scene1.scale.y += (targetScale - scene1.scale.y) * 0.1;
       scene1.scale.z += (targetScale - scene1.scale.z) * 0.1;
+
+      scene1.position.copy(currentPathVector);
     }
   });
 
@@ -329,7 +346,5 @@ const Experience = ({ cubePos, pointsRef }: ExperienceProps) => {
     </>
   );
 };
-
-Experience.displayName = "Experience";
 
 export default Experience;

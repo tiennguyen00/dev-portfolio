@@ -78,18 +78,16 @@ const StarField = ({ count = 500 }) => {
   });
 
   return (
-    <>
-      <instancedMesh ref={mesh} args={[undefined, undefined, count]}>
-        <sphereGeometry args={[0.1, 8, 8]} />
-        <meshStandardMaterial
-          emissive="#ffffff"
-          emissiveIntensity={2}
-          toneMapped={false}
-          roughness={0.2}
-          metalness={0.8}
-        />
-      </instancedMesh>
-    </>
+    <instancedMesh ref={mesh} args={[undefined, undefined, count]}>
+      <sphereGeometry args={[0.1, 8, 8]} />
+      <meshStandardMaterial
+        emissive="#ffffff"
+        emissiveIntensity={2}
+        toneMapped={false}
+        roughness={0.2}
+        metalness={0.8}
+      />
+    </instancedMesh>
   );
 };
 
