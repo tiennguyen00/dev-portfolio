@@ -1,6 +1,7 @@
 import { EffectComposer, SelectiveBloom } from "@react-three/postprocessing";
 import { useEffect, useRef, useState } from "react";
 import * as THREE from "three";
+import StarField from "./StarField";
 
 export const BLOOM_LAYER = 1;
 
@@ -34,6 +35,7 @@ const Effect = ({
           />
         </EffectComposer>
       )}
+      <StarField />
     </>
   );
 };
