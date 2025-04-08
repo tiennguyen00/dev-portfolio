@@ -59,25 +59,17 @@ const HeroSection = () => {
     return () => clearTimeout(timer);
   }, [displayText, isDeleting, typingSpeed]);
 
-  useGSAP(() => {
-    gsap.to(".title", {
-      opacity: 1,
-      duration: 1,
-      ease: "power2.inOut",
-    });
-  }, []);
-
   return (
-    <section className="text-center max-w-2xl px-4 space-y-6 w-full h-[100dvh] flex flex-col justify-center items-center">
-      <div className="bg-white bg-opacity-90 text-blue-600 py-2 px-6 rounded-full  inline-block mb-4 shadow-lg font-medium opacity-0 title">
+    <>
+      <div className="bg-white bg-opacity-90 text-blue-600 py-2 px-6 rounded-full  inline-block mb-4 shadow-lg font-medium">
         Hello, World!
       </div>
 
-      <h1 className="text-6xl font-extrabold opacity-0 title">
+      <h1 className="text-6xl font-extrabold">
         I'm <span className="text-yellow-600">Tien</span>
       </h1>
 
-      <div className="text-3xl text-whiteAlpha-800 opacity-0 title">
+      <div className="text-3xl text-whiteAlpha-800">
         <h2
           ref={titleRef}
           className="my-1 font-semibold"
@@ -91,12 +83,12 @@ const HeroSection = () => {
       </div>
       <div className="w-full h-[35vh]" />
 
-      <p className="text-lg text-whiteAlpha-700 max-w-3xl w-full font-light opacity-0 title">
+      <p className="text-lg text-whiteAlpha-700 max-w-3xl w-full font-light">
         Passionate developer specializing in frontend technologies. Whether you
         are looking to build a commercial website, or create website with a 3D
         experience. <br /> I can help.
       </p>
-    </section>
+    </>
   );
 };
 
