@@ -1,34 +1,32 @@
-const AboutSection = () => {
-  return (
-    <div className="w-full max-w-4/5 p-6 bg-white/5 backdrop-blur-sm rounded-lg shadow-lg">
-      <h2 className="text-3xl font-bold text-center mb-6 border-b border-blue-500 pb-2 inline-block mx-auto">
-        About Me
-      </h2>
+import { personalInfo } from "../../constants/personal-info";
+import { CalendarIcon, LocationIcon, MailIcon, UniversityIcon } from "../icons";
 
-      <div className="flex flex-col md:flex-row gap-8 mb-10">
-        {/* Profile Image */}
-        <div className="flex-shrink-0 mx-auto md:mx-0">
-          <div className="w-48 h-48 rounded-full bg-blue-500 flex items-center justify-center text-white text-5xl font-bold shadow-lg border-4 border-white/20">
+const AboutSection = () => {
+  const { name, title, email, location, phone, bio, education } = personalInfo;
+
+  return (
+    <div className="flex flex-col items-center max-w-7xl mx-auto">
+      <h3 className="text-4xl underline font-bold mb-4">ABOUT ME</h3>
+      <div className="w-full grid grid-cols-1 md:grid-cols-4 gap-3">
+        {/* Top row - left column: Profile Image */}
+        <div className="md:col-span-1 bg-gray-800 rounded-lg shadow-lg p-6 flex justify-center items-center border border-gray-700">
+          <div className="w-48 sm:w-60 h-auto  aspect-square rounded-full bg-blue-500 flex items-center justify-center text-white text-5xl font-bold shadow-lg border-4 border-white/20">
             NHT
           </div>
         </div>
 
-        {/* Profile Info */}
-        <div className="flex-grow">
-          <div className="border-l-4 border-blue-500 pl-4 mb-4">
-            <h3 className="text-2xl font-bold">Nguyen Huu Tien</h3>
-            <p className="text-gray-300">Frontend Developer</p>
+        {/* Top row - right column: Profile Info */}
+        <div className="md:col-span-3 bg-gray-800 rounded-lg shadow-lg p-6 border border-gray-700">
+          <div className="border-l-4 border-blue-500 pl-4 mb-4 w-fit text-left">
+            <h3 className="text-3xl text-yellow-600 font-bold">{name}</h3>
+            <p className="text-gray-300">{title}</p>
           </div>
 
-          <p className="text-gray-300 mb-6">
-            Passionate developer specializing in frontend technologies. Whether
-            you are looking to build a commercial website, or create website
-            with a 3D experience.
-          </p>
+          <p className="text-gray-300 mb-6 text-left">{bio}</p>
 
-          {/* Three columns */}
+          {/* Three value propositions in a row */}
           <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
-            <div>
+            <div className="bg-gray-700 p-4 rounded-lg border border-gray-600">
               <h4 className="text-blue-500 font-bold mb-2">
                 Embracing Simplicity
               </h4>
@@ -37,7 +35,7 @@ const AboutSection = () => {
               </p>
             </div>
 
-            <div>
+            <div className="bg-gray-700 p-4 rounded-lg border border-gray-600">
               <h4 className="text-blue-500 font-bold mb-2">
                 Prioritizing Cleanliness
               </h4>
@@ -46,7 +44,7 @@ const AboutSection = () => {
               </p>
             </div>
 
-            <div>
+            <div className="bg-gray-700 p-4 rounded-lg border border-gray-600">
               <h4 className="text-blue-500 font-bold mb-2">
                 Commitment to Learning
               </h4>
@@ -56,71 +54,58 @@ const AboutSection = () => {
             </div>
           </div>
         </div>
-      </div>
 
-      {/* Contact Info */}
-      <div className="grid grid-cols-1 md:grid-cols-3 gap-4 mb-10">
-        <div className="bg-white/5 p-4 rounded-lg">
-          <div className="font-bold mb-2">Location</div>
-          <div className="flex items-center gap-2">
-            <span className="text-blue-500">📍</span>
-            <span>Ho Chi Minh City</span>
+        {/* Bottom row - Location box */}
+        <div className="bg-gray-800 rounded-lg shadow-lg p-3 border md:col-span-2 lg:col-span-1 border-gray-700">
+          <div className="font-bold mb-2 text-blue-500 text-left">Location</div>
+          <div className="flex gap-2">
+            <LocationIcon className="size-6 mr-2 text-blue-500" />
+            <span>{location}</span>
           </div>
         </div>
 
-        <div className="bg-white/5 p-4 rounded-lg">
-          <div className="font-bold mb-2">Email</div>
+        {/* Bottom row - Email box */}
+        <div className="bg-gray-800 rounded-lg shadow-lg p-3 border md:col-span-2 lg:col-span-1 border-gray-700 pointer-events-auto">
+          <div className="font-bold mb-2 text-blue-500 text-left">Email</div>
           <div className="flex items-center gap-2">
-            <span className="text-blue-500">📧</span>
-            <span>nhtiendev@gmail.com</span>
+            <MailIcon className="size-6 mr-2 text-blue-500" />
+            <a href={`mailto:${email}`} className="hover:underline">
+              {email}
+            </a>
           </div>
         </div>
 
-        <div className="bg-white/5 p-4 rounded-lg">
-          <div className="font-bold mb-2">Education</div>
-          <div className="flex items-center gap-2">
-            <span className="text-blue-500">🎓</span>
-            <div>
-              <div>University of Information Technology</div>
-              <div className="text-sm text-gray-400">Computer Science</div>
-            </div>
+        {/* Bottom row - Phone  box */}
+        <div className="bg-gray-800 rounded-lg shadow-lg p-3 border md:col-span-2 lg:col-span-1 border-gray-700 pointer-events-auto">
+          <div className="font-bold mb-2 text-blue-500 text-left">
+            Phone Number
           </div>
-        </div>
-      </div>
-
-      {/* GitHub Contributions */}
-      <div>
-        <h3 className="text-xl font-bold border-b border-blue-500 pb-2 inline-block mb-6">
-          GitHub Contributions
-        </h3>
-
-        <div className="overflow-x-auto mb-6">
-          {/* Placeholder for GitHub contributions graph */}
-          <div className="w-full h-32 bg-white/5 rounded-lg p-2">
-            <div className="grid grid-cols-12 gap-1 h-full">
-              {Array.from({ length: 12 }).map((_, i) => (
-                <div key={i} className="flex flex-col gap-1">
-                  {Array.from({ length: 4 }).map((_, j) => (
-                    <div
-                      key={j}
-                      className={`h-full w-full rounded-sm bg-green-${
-                        Math.floor(Math.random() * 5) * 100 + 100
-                      }`}
-                    />
-                  ))}
-                </div>
-              ))}
+          <div className="flex gap-2">
+            <CalendarIcon className="size-6 mr-2 text-blue-500" />
+            <div className="text-left">
+              <div>
+                <a href={`tel:${phone}`} className="hover:underline">
+                  {phone}
+                </a>
+              </div>
             </div>
           </div>
         </div>
 
-        <div className="flex justify-center">
-          <a
-            href="#"
-            className="bg-blue-600 hover:bg-blue-700 text-white font-medium py-2 px-4 rounded-md flex items-center gap-2 transition-colors"
-          >
-            <span>👁️</span> View GitHub Profile
-          </a>
+        {/* Bottom row - Education box */}
+        <div className="bg-gray-800 rounded-lg shadow-lg p-3 border md:col-span-2 lg:col-span-1 border-gray-700">
+          <div className="font-bold mb-2 text-blue-500 text-left">
+            Education
+          </div>
+          <div className="flex  gap-2">
+            <UniversityIcon className="size-8 mr-2 text-blue-500" />
+            <div className="text-left">
+              <div>
+                <span>{education.university} </span>
+                <span className="text-sm text-gray-400">(GPA: 7.54/10)</span>
+              </div>
+            </div>
+          </div>
         </div>
       </div>
     </div>

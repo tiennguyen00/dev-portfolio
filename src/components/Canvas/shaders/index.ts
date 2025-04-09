@@ -91,7 +91,7 @@ void main() {
     if(vLife<0.88) discard;
     vec4 color = texture2D( uTexture, vUv );
     // Increase brightness for bloom and use a more vibrant blue
-    vec3 glowColor = mix(vec3(0.6, 0.4, 1.3), vec3(0.08, 0.53, 0.96), uProgress) * 4.5; // Increased multiplier to make points brighter
+    vec3 glowColor = mix(vec3(0.08, 0.53, 0.96), vec3(0.6, 0.4, 1.3), uProgress) * 4.5; // Increased multiplier to make points brighter
     gl_FragColor = vec4(glowColor, 0.64 * vLife);
 }
 `;
@@ -240,8 +240,8 @@ const wireframeFragmentShader = `
   
   void main() {
     float progress = clamp(uProgress, 0.0, 1.0);
-    vec3 baseColor = mix(vec3(0.33, 0.17, 0.62), vec3(0.0, 1.5, 1.8), progress);     
-    vec3 secondColor = mix(vec3(0.34, 0.19, 0.63), vec3(0.0, 0.2, 0.8), progress); 
+    vec3 baseColor = mix(vec3(0.0, 1.5, 1.8), vec3(0.33, 0.17, 0.62), progress);     
+    vec3 secondColor = mix(vec3(0.0, 0.2, 0.8), vec3(0.34, 0.19, 0.63), progress); 
     
     // Create a traveling wave effect based on time
     float speed = 5.;

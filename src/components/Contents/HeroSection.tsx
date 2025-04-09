@@ -86,7 +86,7 @@ const HeroSection = () => {
       <p className="text-lg text-whiteAlpha-700 max-w-3xl w-full font-light">
         Passionate developer specializing in frontend technologies. Whether you
         are looking to build a commercial website, or create website with a 3D
-        experience. <br /> I can help.
+        experience. I can help.
       </p>
     </>
   );
