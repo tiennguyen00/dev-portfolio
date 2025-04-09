@@ -102,7 +102,6 @@ const AboutSection = () => {
             <div className="text-left">
               <div>
                 <span>{education.university} </span>
-                <span className="text-sm text-gray-400">(GPA: 7.54/10)</span>
               </div>
             </div>
           </div>
