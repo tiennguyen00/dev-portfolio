@@ -1,9 +1,16 @@
 export const HamburgerIcon = (props: React.SVGProps<SVGSVGElement>) => {
   return (
-    <svg width="24" height="24" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg" {...props}>
+    <svg
+      width="24"
+      height="24"
+      viewBox="0 0 24 24"
+      fill="none"
+      xmlns="http://www.w3.org/2000/svg"
+      {...props}
+    >
       <path
-        fill-rule="evenodd"
-        clip-rule="evenodd"
+        fillRule="evenodd"
+        clipRule="evenodd"
         d="M2.75 9.99994C2.75 6.27202 5.77208 3.24994 9.5 3.24994H14.5C18.2279 3.24994 21.25 6.27202 21.25 9.99994V10.7499H2.75V9.99994ZM16.0078 6.99994C16.0078 7.55222 15.5601 7.99994 15.0078 7.99994H14.9988C14.4465 7.99994 13.9988 7.55222 13.9988 6.99994C13.9988 6.44765 14.4465 5.99994 14.9988 5.99994H15.0078C15.5601 5.99994 16.0078 6.44765 16.0078 6.99994ZM10.084 5.87592L8.58398 6.87592L9.41603 8.12399L10.916 7.12399L10.084 5.87592Z"
         fill="currentColor"
       />
@@ -16,5 +23,5 @@ export const HamburgerIcon = (props: React.SVGProps<SVGSVGElement>) => {
         fill="currentColor"
       />
     </svg>
-  )
-}
+  );
+};
