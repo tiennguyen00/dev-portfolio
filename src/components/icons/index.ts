@@ -15,3 +15,4 @@ export * from "./tailwind";
 export * from "./threejs";
 export * from "./typescript";
 export * from "./gsap";
+export * from "./shadcn-icon";

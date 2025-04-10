@@ -104,7 +104,6 @@ const Contents = ({ scrollRef }: { scrollRef: React.RefObject<number> }) => {
           className={`text-center z-[9999] fixed px-6 w-full h-[100dvh] flex flex-col justify-center items-center project-section-${project.id}`}
         >
           <WorkSection
-            id={project.id}
             title={project.title}
             keywords={project.keywords}
             highlights={project.highlights}

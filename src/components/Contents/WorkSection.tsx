@@ -1,13 +1,13 @@
 import {
   GSAPIcon,
   NextJsIcon,
+  ShadcnIcon,
   TailwindIcon,
   ThreejsIcon,
   TypeScriptIcon,
 } from "../icons";
 
 interface WorkSectionProps {
-  id: number;
   title: string;
   keywords: string[];
   highlights: string[];
@@ -50,6 +50,10 @@ const TECH_ICON_CONFIG: Record<string, TechIconConfig> = {
     icon: ThreejsIcon,
     containerClass: "bg-white p-[4px] w-8 h-8 rounded-full",
   },
+  Shadcn: {
+    icon: ShadcnIcon,
+    containerClass: "bg-white p-[4px] w-8 h-8 rounded-full",
+  },
 };
 
 const TechnologyIcon = ({ keyword }: TechnologyIconProps) => {
@@ -77,27 +81,32 @@ const WorkSection = ({
   image,
   demo,
   des,
-}: Omit<WorkSectionProps, "id" | "highlights">) => {
+}: WorkSectionProps) => {
   return (
-    <div className="flex justify-end items-center w-full h-[100vh]relative py-8">
-      <h3 className="text-4xl underline font-bold mb-4 absolute left-8 top-8">
+    <div className="flex justify-end items-center w-full h-[100vh] relative py-8">
+      <h3 className="text-4xl underline font-bold mb-4 absolute left-0 top-6">
         MY WORKS
       </h3>
-      <div className="flex w-3/5 flex-col items-start">
-        <h3 className="text-4xl font-bold">{title}</h3>
-        <p className="text-gray-300 text-left">{des}</p>
-        <img src={image} alt={title} className="w-2/3 h-auto" />
-
-        <div className="flex items-center pointer-events-auto ">
-          <h3 className="text-gray-300 font-bold text-left">Techs:</h3>
-          {keywords.map((keyword) => (
-            <p
-              key={keyword}
-              className="text-gray-300 px-2 py-1 text-left relative group"
-            >
-              <TechnologyIcon keyword={keyword} />
-            </p>
-          ))}
+      <div className="flex w-3/5 flex-col space-y-6 items-start">
+        <h3 className="text-4xl font-bold text-yellow-600">{title}</h3>
+        <p className="text-gray-300 text-sm/5 text-left ">{des}</p>
+        <div>
+          <img
+            src={image}
+            alt={title}
+            className="w-full h-auto rounded-lg mb-3"
+          />
+          <div className="flex items-center pointer-events-auto">
+            <h3 className="text-gray-300 font-bold text-left">Techs:</h3>
+            {keywords.map((keyword) => (
+              <div
+                key={keyword}
+                className="text-gray-300 px-2 py-1 text-left relative group"
+              >
+                <TechnologyIcon keyword={keyword} />
+              </div>
+            ))}
+          </div>
         </div>
 
         <a

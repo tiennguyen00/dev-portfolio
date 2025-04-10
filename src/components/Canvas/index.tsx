@@ -4,6 +4,8 @@ import { useRef } from "react";
 import * as THREE from "three";
 import Horse from "./Horse";
 import Effect from "./Effects";
+import Totoro from "./Totoro";
+import { OrbitControls } from "@react-three/drei";
 
 const CanvasPage = ({ scrollRef }: { scrollRef: React.RefObject<number> }) => {
   const cubePos = useRef<THREE.Vector3>(new THREE.Vector3());
@@ -24,12 +26,13 @@ const CanvasPage = ({ scrollRef }: { scrollRef: React.RefObject<number> }) => {
     >
       <color attach="background" args={["#222"]} />
       {/* <StatsGl className="top-0 left-0 fixed" trackGPU /> */}
-      {/* <OrbitControls /> */}
+      <OrbitControls />
       <Experience
         cubePos={cubePos}
         pointsRef={pointsRef}
         scrollRef={scrollRef}
       />
+      <Totoro />
       <Horse />
       <Effect pointsRef={pointsRef} />
     </Canvas>
