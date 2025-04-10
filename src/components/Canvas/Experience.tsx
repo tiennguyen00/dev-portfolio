@@ -26,7 +26,7 @@ const Experience = ({ cubePos, pointsRef, scrollRef }: ExperienceProps) => {
   const v1 = useRef(new THREE.Vector3(0, 0, 0));
   const currentParticles = useRef(0);
   const emitters = useRef<THREE.Mesh[]>([]);
-  const morphTargetTexture = useRef(null);
+  const morphTargetTexture = useRef<THREE.Texture[]>([]);
 
   const sceneFBO = useRef<THREE.Scene>(new THREE.Scene());
   const viewArea = size / 2 + 0.01;
@@ -49,7 +49,10 @@ const Experience = ({ cubePos, pointsRef, scrollRef }: ExperienceProps) => {
   const simGeometry = useRef<THREE.BufferGeometry>(null!);
 
   const { scene: scene1, animations } = useGLTF("/models/test.glb");
-  const { scene: totoroScene } = useGLTF("/models/totoro_1.glb");
+  const [{ scene: totoroScene }, { scene: horseScene }] = useGLTF([
+    "/models/totoro_1.glb",
+    "/models/horses.glb",
+  ]);
   const { clips, mixer } = useAnimations(animations, scene1);
 
   const wireframeMaterials: THREE.ShaderMaterial[] = [];
@@ -100,15 +103,66 @@ const Experience = ({ cubePos, pointsRef, scrollRef }: ExperienceProps) => {
     return positions;
   }, [totoroScene, viewport]);
 
+  // Extract Totoro model positions for morphing
+  const horsePositions = useMemo(() => {
+    const positions: number[] = [];
+
+    const transformMatrix = new THREE.Matrix4();
+
+    const rotationMatrix = new THREE.Matrix4().makeRotationY(Math.PI / 4);
+    const translationMatrix = new THREE.Matrix4().makeTranslation(
+      -viewport.width / 3 + 15,
+      -10,
+      15
+    );
+
+    // Combine rotation and translation
+    transformMatrix.multiply(translationMatrix).multiply(rotationMatrix);
+
+    horseScene.traverse((child) => {
+      if ((child as THREE.Mesh).isMesh) {
+        const mesh = child as THREE.Mesh;
+        const geometry = mesh.geometry;
+        const positionAttribute = geometry.attributes.position;
+
+        // Process each vertex
+        for (let i = 0; i < positionAttribute.count; i++) {
+          // Get vertex position in local space
+          const vertex = new THREE.Vector3();
+          vertex.fromBufferAttribute(positionAttribute, i);
+
+          // Apply mesh's local transformation
+          vertex.applyMatrix4(mesh.matrixWorld);
+
+          // Scale the model
+          vertex.multiplyScalar(5);
+
+          // Apply our custom transformation to position in yellow area and face camera
+          vertex.applyMatrix4(transformMatrix);
+
+          // Add position to positions array
+          positions.push(vertex.x, vertex.y, vertex.z);
+        }
+      }
+    });
+
+    return positions;
+  }, [horseScene, viewport]);
+
   useEffect(() => {
-    // Initialize the target positions for morphing
     if (totoroPositions.length > 0) {
-      // Resample the positions to match our particle system size
-      // This resampledPositions is a Float32Array (only contains position values, no alpha)
       const resampledPositions = resamplePositions(totoroPositions, size);
 
-      // Create the texture
-      morphTargetTexture.current = createPositionTexture(
+      morphTargetTexture.current[0] = createPositionTexture(
+        size,
+        resampledPositions
+      );
+    }
+
+    if (horsePositions.length > 0) {
+      const resampledPositions = resamplePositions(horsePositions, size);
+
+      morphTargetTexture.current[1] = createPositionTexture(
         size,
         resampledPositions
       );
@@ -239,9 +293,9 @@ const Experience = ({ cubePos, pointsRef, scrollRef }: ExperienceProps) => {
       simMaterial.current.uniforms.uCurrentPosition.value = initPos.texture;
 
       // Set the target positions texture
-      if (morphTargetTexture.current) {
+      if (morphTargetTexture.current[0]) {
         simMaterial.current.uniforms.uTargetPositions.value =
-          morphTargetTexture.current;
+          morphTargetTexture.current[0];
       }
     }
 

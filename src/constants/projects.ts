@@ -1,7 +1,7 @@
 export const projects = [
   {
     id: 1,
-    title: "Ghibli landing (WIP)",
+    title: "Ghibli landing",
     des: "A showcase project designed to highlight the work of a renowned animation studio, focusing on immersive animations, smooth transitions, responsive design, and interactive elements.",
     keywords: [
       "Next.js",

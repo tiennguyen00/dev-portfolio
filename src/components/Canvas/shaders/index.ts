@@ -30,18 +30,25 @@ void main() {
     vec4 direction = texture2D( uDirections, vUv );
 
     if(uRenderMode==0){
-        float life = 1. - clamp( (uTime - direction.a)/15., 0.,1.);
+        float life;
+        if (uMorphProgress > 0.0) {
+            // Keep particles alive during morphing
+            life = 1.0;
+        } else {
+            // Normal life calculation when not morphing
+            life = 1. - clamp( (uTime - direction.a)/15., 0.,1.);
+        }
+        
         float speedlife = clamp(life,0.1,0.65);
         
         // Base particle movement
         vec3 newPosition = position.xyz + speedlife*direction.xyz * 0.01 + vec3(0.,-1,0.)*0.15 + vec3(0.,0.,-1.)*0.01;
         
-        // If target positions texture is available and morph is in progress, blend positions
+        // If morph is in progress, blend positions
         if (uMorphProgress > 0.0) {
             vec3 targetPos = texture2D(uTargetPositions, vUv).xyz;
             // Ease the transition using smoothstep
             float ease = smoothstep(0.0, 1.0, uMorphProgress);
-            // Blend between current particle behavior and target shape
             newPosition = mix(newPosition, targetPos, ease);
         }
 
@@ -101,12 +108,10 @@ uniform sampler2D uTexture;
 varying float vLife;
 uniform float uProgress;
 uniform float uMorphProgress;
-uniform bool uUseTargetTexture;
 
 void main() {
-    // When morphing to Totoro, don't discard particles based on life
-    // This keeps all Totoro particles visible regardless of life value
-    if(vLife < 0.88 && uMorphProgress < 0.5) discard;
+    // Only discard particles with low life when NOT morphing
+    if(vLife < 0.88 && uMorphProgress <= 0.0) discard;
     
     vec4 color = texture2D( uTexture, vUv );
     
@@ -114,13 +119,14 @@ void main() {
     vec3 baseGlowColor = mix(vec3(0.08, 0.53, 0.96), vec3(0.6, 0.4, 1.3), uProgress) * 4.5;
     
     // Totoro color (gray with hint of green)
-    vec3 totoroColor = vec3(0.45, 0.52, 0.48) * 2.5;
+    // for horse: 1.0, 0.85, 0.4
+    vec3 totoroColor = vec3(1.0, 0.98, 0.9) * 2.5;
     
     // Blend between colors based on morph progress
     vec3 finalColor = mix(baseGlowColor, totoroColor, smoothstep(0.0, 1.0, uMorphProgress));
     
-    // Ensure particles stay visible during and after morphing
-    float alpha = uMorphProgress > 0.5 ? 0.8 : 0.64 * vLife;
+    // Adjust alpha based on morphing state
+    float alpha = uMorphProgress > 0.0 ? 0.8 : (0.64 * vLife);
     
     gl_FragColor = vec4(finalColor, alpha);
 }
