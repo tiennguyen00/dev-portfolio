@@ -23,16 +23,9 @@ export const projects = [
   },
   {
     id: 2,
-    title: "Ghibli landing (WIP)",
+    title: "GPGPPU Particles",
     des: "A showcase project designed to highlight the work of a renowned animation studio, focusing on immersive animations, smooth transitions, responsive design, and interactive elements.",
-    keywords: [
-      "Next.js",
-      "Tailwind CSS",
-      "TypeScript",
-      "GSAP",
-      "Threejs",
-      "ReactThree",
-    ],
+    keywords: ["Next.js", "TypeScript", "Threejs", "Blender"],
     highlights: [
       "Custom-built creative design",
       "Smooth section transitions",
@@ -40,8 +33,8 @@ export const projects = [
       "Fully responsive design",
       "Optimized performance",
     ],
-    image: "/images/projects/ghibli-landing.png",
-    demo: "https://landing-lime-one.vercel.app/",
+    image: "/images/particles-morphing.webp",
+    demo: "https://particles-morphing-tau.vercel.app/new",
   },
   {
     id: 3,

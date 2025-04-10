@@ -38,7 +38,6 @@ void main() {
         
         // If target positions texture is available and morph is in progress, blend positions
         if (uMorphProgress > 0.0) {
-            life = 1.;
             vec3 targetPos = texture2D(uTargetPositions, vUv).xyz;
             // Ease the transition using smoothstep
             float ease = smoothstep(0.0, 1.0, uMorphProgress);
@@ -102,9 +101,13 @@ uniform sampler2D uTexture;
 varying float vLife;
 uniform float uProgress;
 uniform float uMorphProgress;
+uniform bool uUseTargetTexture;
 
 void main() {
-    if(vLife<0.88) discard;
+    // When morphing to Totoro, don't discard particles based on life
+    // This keeps all Totoro particles visible regardless of life value
+    if(vLife < 0.88 && uMorphProgress < 0.5) discard;
+    
     vec4 color = texture2D( uTexture, vUv );
     
     // Base glow color (blue/purple)
@@ -116,7 +119,10 @@ void main() {
     // Blend between colors based on morph progress
     vec3 finalColor = mix(baseGlowColor, totoroColor, smoothstep(0.0, 1.0, uMorphProgress));
     
-    gl_FragColor = vec4(finalColor, 0.64 * vLife);
+    // Ensure particles stay visible during and after morphing
+    float alpha = uMorphProgress > 0.5 ? 0.8 : 0.64 * vLife;
+    
+    gl_FragColor = vec4(finalColor, alpha);
 }
 `;
 

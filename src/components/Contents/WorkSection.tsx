@@ -1,4 +1,5 @@
 import {
+  BlenderIcon,
   GSAPIcon,
   NextJsIcon,
   ShadcnIcon,
@@ -52,6 +53,10 @@ const TECH_ICON_CONFIG: Record<string, TechIconConfig> = {
   },
   Shadcn: {
     icon: ShadcnIcon,
+    containerClass: "bg-white p-[4px] w-8 h-8 rounded-full",
+  },
+  Blender: {
+    icon: BlenderIcon,
     containerClass: "bg-white p-[4px] w-8 h-8 rounded-full",
   },
 };
