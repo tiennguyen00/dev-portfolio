@@ -38,6 +38,7 @@ void main() {
         
         // If target positions texture is available and morph is in progress, blend positions
         if (uMorphProgress > 0.0) {
+            life = 1.;
             vec3 targetPos = texture2D(uTargetPositions, vUv).xyz;
             // Ease the transition using smoothstep
             float ease = smoothstep(0.0, 1.0, uMorphProgress);

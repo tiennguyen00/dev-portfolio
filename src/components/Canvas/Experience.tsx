@@ -257,42 +257,44 @@ const Experience = ({ cubePos, pointsRef, scrollRef }: ExperienceProps) => {
 
     // BEGIN EMITTER
     const emit = 1;
-    state.gl.autoClear = false;
+    // state.gl.autoClear = false;
 
-    emitters.current.forEach((emitter) => {
-      emitter.mesh.getWorldPosition(v.current);
-      v1.current = v.current.clone();
-      const flip = Math.random() > 0.5;
+    // Only emit particles if we're not morphing to Totoro
+    if (morphProgress <= 0) {
+      emitters.current.forEach((emitter) => {
+        emitter.mesh.getWorldPosition(v.current);
+        v1.current = v.current.clone();
+        const flip = Math.random() > 0.5;
 
-      emitter.dir = v.current.clone().sub(emitter.prev).multiplyScalar(100);
-      simGeometry.current.setDrawRange(currentParticles.current, emit);
+        emitter.dir = v.current.clone().sub(emitter.prev).multiplyScalar(100);
+        simGeometry.current.setDrawRange(currentParticles.current, emit);
 
-      // DIRECTIONS
-      simMaterial.current.uniforms.uRenderMode.value = 1;
-      simMaterial.current.uniforms.uDirections.value = null;
-      simMaterial.current.uniforms.uCurrentPosition.value = null;
-      if (flip) emitter.dir.x *= -1;
-      simMaterial.current.uniforms.uSource.value = emitter.dir;
-      state.gl.setRenderTarget(directions);
-      state.gl.render(sceneFBO.current, cameraFBO.current);
+        // DIRECTIONS
+        simMaterial.current.uniforms.uRenderMode.value = 1;
+        simMaterial.current.uniforms.uDirections.value = null;
+        simMaterial.current.uniforms.uCurrentPosition.value = null;
+        if (flip) emitter.dir.x *= -1;
+        simMaterial.current.uniforms.uSource.value = emitter.dir;
+        state.gl.setRenderTarget(directions);
+        state.gl.render(sceneFBO.current, cameraFBO.current);
 
-      // POSITIONS
-      simMaterial.current.uniforms.uRenderMode.value = 2;
-      if (flip) v1.current.x *= -1;
-      simMaterial.current.uniforms.uSource.value = v1.current;
-      simMaterial.current.uniforms.uSource.value =
-        simMaterial.current.uniforms.uSource.value.add(currentPathVector);
-      state.gl.setRenderTarget(renderTarget);
-      state.gl.render(sceneFBO.current, cameraFBO.current);
+        // POSITIONS
+        simMaterial.current.uniforms.uRenderMode.value = 2;
+        if (flip) v1.current.x *= -1;
+        simMaterial.current.uniforms.uSource.value = v1.current;
+        simMaterial.current.uniforms.uSource.value =
+          simMaterial.current.uniforms.uSource.value.add(currentPathVector);
+        state.gl.setRenderTarget(renderTarget);
+        state.gl.render(sceneFBO.current, cameraFBO.current);
 
-      currentParticles.current += emit;
-      if (currentParticles.current > number) {
-        currentParticles.current = 0;
-      }
+        currentParticles.current += emit;
+        if (currentParticles.current > number) {
+          currentParticles.current = 0;
+        }
 
-      emitter.prev = v.current.clone();
-    });
-
+        emitter.prev = v.current.clone();
+      });
+    }
     // END OF EMIITER
 
     // RENDER SCENE
