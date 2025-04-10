@@ -15,6 +15,8 @@ const SimMaterial = shaderMaterial(
     uRenderMode: new THREE.Uniform(0),
     uCurrentPosition: new THREE.Uniform(null),
     uDirections: new THREE.Uniform(null),
+    uTargetPositions: new THREE.Uniform(null),
+    uMorphProgress: new THREE.Uniform(0),
   },
   simVertex,
   simFragment

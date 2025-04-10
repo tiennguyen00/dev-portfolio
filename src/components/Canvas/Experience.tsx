@@ -8,6 +8,7 @@ import { lerp } from "three/src/math/MathUtils.js";
 import "./shaders/RenderMaterial";
 import "./shaders/SimMaterial";
 import { wireframeVertexShader, wireframeFragmentShader } from "./shaders";
+import { createPositionTexture, resamplePositions } from "./utils/textureUtils";
 
 const size = 64,
   number = size * size;
@@ -25,6 +26,7 @@ const Experience = ({ cubePos, pointsRef, scrollRef }: ExperienceProps) => {
   const v1 = useRef(new THREE.Vector3(0, 0, 0));
   const currentParticles = useRef(0);
   const emitters = useRef<THREE.Mesh[]>([]);
+  const morphTargetTexture = useRef(null);
 
   const sceneFBO = useRef<THREE.Scene>(new THREE.Scene());
   const viewArea = size / 2 + 0.01;
@@ -47,11 +49,71 @@ const Experience = ({ cubePos, pointsRef, scrollRef }: ExperienceProps) => {
   const simGeometry = useRef<THREE.BufferGeometry>(null!);
 
   const { scene: scene1, animations } = useGLTF("/models/test.glb");
+  const { scene: totoroScene } = useGLTF("/models/totoro_1.glb");
   const { clips, mixer } = useAnimations(animations, scene1);
 
   const wireframeMaterials: THREE.ShaderMaterial[] = [];
 
+  // Extract Totoro model positions for morphing
+  const totoroPositions = useMemo(() => {
+    const positions: number[] = [];
+
+    const transformMatrix = new THREE.Matrix4();
+
+    const rotationMatrix = new THREE.Matrix4().makeRotationY(Math.PI / 4);
+    const translationMatrix = new THREE.Matrix4().makeTranslation(
+      -viewport.width / 3 + 15,
+      -10,
+      15
+    );
+
+    // Combine rotation and translation
+    transformMatrix.multiply(translationMatrix).multiply(rotationMatrix);
+
+    totoroScene.traverse((child) => {
+      if ((child as THREE.Mesh).isMesh) {
+        const mesh = child as THREE.Mesh;
+        const geometry = mesh.geometry;
+        const positionAttribute = geometry.attributes.position;
+
+        // Process each vertex
+        for (let i = 0; i < positionAttribute.count; i++) {
+          // Get vertex position in local space
+          const vertex = new THREE.Vector3();
+          vertex.fromBufferAttribute(positionAttribute, i);
+
+          // Apply mesh's local transformation
+          vertex.applyMatrix4(mesh.matrixWorld);
+
+          // Scale the model
+          vertex.multiplyScalar(5);
+
+          // Apply our custom transformation to position in yellow area and face camera
+          vertex.applyMatrix4(transformMatrix);
+
+          // Add position to positions array
+          positions.push(vertex.x, vertex.y, vertex.z);
+        }
+      }
+    });
+
+    return positions;
+  }, [totoroScene, viewport]);
+
   useEffect(() => {
+    // Initialize the target positions for morphing
+    if (totoroPositions.length > 0) {
+      // Resample the positions to match our particle system size
+      // This resampledPositions is a Float32Array (only contains position values, no alpha)
+      const resampledPositions = resamplePositions(totoroPositions, size);
+
+      // Create the texture
+      morphTargetTexture.current = createPositionTexture(
+        size,
+        resampledPositions
+      );
+    }
+
     let index = 0;
     scene1.traverse((m) => {
       if (m.isSkinnedMesh) {
@@ -137,8 +199,21 @@ const Experience = ({ cubePos, pointsRef, scrollRef }: ExperienceProps) => {
 
   useFrame((state, delta) => {
     const elapsedTime = state.clock.elapsedTime;
+    // value from 0 -> 1 ======================================
     const mappedProgress = Math.min(1, scrollRef.current / 0.2);
     const currentPathVector = path.getPointAt(mappedProgress);
+
+    // Set the morph progress based on scroll position
+    // Start morphing after 60% of the scroll and complete by 90%
+    const morphStart = 0.25;
+    const morphEnd = 0.4;
+    const morphProgress =
+      scrollRef.current > morphStart
+        ? Math.min(
+            1,
+            (scrollRef.current - morphStart) / (morphEnd - morphStart)
+          )
+        : 0;
 
     if (scene1) {
       scene1.position.copy(cubePos.current).multiplyScalar(1.5);
@@ -162,7 +237,15 @@ const Experience = ({ cubePos, pointsRef, scrollRef }: ExperienceProps) => {
       state.gl.setRenderTarget(initPos);
       state.gl.render(sceneFBO.current, cameraFBO.current);
       simMaterial.current.uniforms.uCurrentPosition.value = initPos.texture;
+
+      // Set the target positions texture
+      if (morphTargetTexture.current) {
+        simMaterial.current.uniforms.uTargetPositions.value =
+          morphTargetTexture.current;
+      }
     }
+
+    simMaterial.current.uniforms.uMorphProgress.value = morphProgress;
 
     // SIMULATION
     simMaterial.current.uniforms.uDirections.value = directions.texture;
@@ -222,6 +305,8 @@ const Experience = ({ cubePos, pointsRef, scrollRef }: ExperienceProps) => {
 
     material.current.uniforms.uTexture.value = renderTarget.texture;
     material.current.uniforms.uProgress.value = mappedProgress;
+    material.current.uniforms.uMorphProgress.value = morphProgress;
+
     simMaterial.current.uniforms.uCurrentPosition.value = renderTarget1.texture;
     simMaterial.current.uniforms.uTime.value = elapsedTime;
 
@@ -234,6 +319,13 @@ const Experience = ({ cubePos, pointsRef, scrollRef }: ExperienceProps) => {
       material.uniforms.uTime.value = state.clock.elapsedTime;
       material.uniforms.uProgress.value = mappedProgress;
     });
+
+    // If we're morphing, adjust the original model's opacity/visibility
+    if (morphProgress > 0) {
+      scene1.visible = false;
+    } else {
+      scene1.visible = true;
+    }
 
     // Rotate the model based on mouse position
     if (scene1) {
