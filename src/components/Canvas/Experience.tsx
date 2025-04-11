@@ -259,6 +259,7 @@ const Experience = ({ cubePos, pointsRef, scrollRef }: ExperienceProps) => {
   // Calculate morphing progress and determine which model to use
   let morphProgress = 0;
   let targetModelIndex = -1; // -1: no morph, 0: Totoro, 1: Horse
+  let normalizedProgress = 0; // 0-1 unified parameter space across all transitions. 0 = no morph
 
   useFrame((state, delta) => {
     const elapsedTime = state.clock.elapsedTime;
@@ -273,25 +274,41 @@ const Experience = ({ cubePos, pointsRef, scrollRef }: ExperienceProps) => {
       scene1.position.copy(cubePos.current).multiplyScalar(1.5);
     }
 
-    // Check if we're in Totoro morph range
-    if (
-      scrollRef.current >= MORPH_RANGES.TOTORO.START &&
-      scrollRef.current <= MORPH_RANGES.TOTORO.END
-    ) {
-      morphProgress =
-        (scrollRef.current - MORPH_RANGES.TOTORO.START) /
-        (MORPH_RANGES.TOTORO.END - MORPH_RANGES.TOTORO.START);
-      targetModelIndex = 0; // Totoro
-    }
-    // Check if we're in Horse morph range
-    else if (
-      scrollRef.current >= MORPH_RANGES.HORSE.START &&
-      scrollRef.current <= MORPH_RANGES.HORSE.END
-    ) {
-      morphProgress =
-        (scrollRef.current - MORPH_RANGES.HORSE.START) /
-        (MORPH_RANGES.HORSE.END - MORPH_RANGES.HORSE.START);
-      targetModelIndex = 1; // Horse
+    // Create a unified parameter space for morphing (0-1 for entire sequence)
+    // 0.0-0.5: Particles to Totoro
+    // 0.5-1.0: Totoro to Horse
+    if (scrollRef.current < MORPH_RANGES.TOTORO.START) {
+      // Before any morphing
+      normalizedProgress = 0;
+      morphProgress = 0;
+      targetModelIndex = -1;
+    } else if (scrollRef.current <= MORPH_RANGES.TOTORO.END) {
+      // In Totoro range (0-0.5 in normalized space)
+      normalizedProgress =
+        ((scrollRef.current - MORPH_RANGES.TOTORO.START) /
+          (MORPH_RANGES.TOTORO.END - MORPH_RANGES.TOTORO.START)) *
+        0.5;
+      morphProgress = normalizedProgress * 2; // Scale to 0-1 range for this model
+      targetModelIndex = 0;
+    } else if (scrollRef.current < MORPH_RANGES.HORSE.START) {
+      // Between Totoro and Horse (maintain full Totoro form)
+      normalizedProgress = 0.5;
+      morphProgress = 1.0;
+      targetModelIndex = 0;
+    } else if (scrollRef.current <= MORPH_RANGES.HORSE.END) {
+      // In Horse range (0.5-1.0 in normalized space)
+      normalizedProgress =
+        0.5 +
+        ((scrollRef.current - MORPH_RANGES.HORSE.START) /
+          (MORPH_RANGES.HORSE.END - MORPH_RANGES.HORSE.START)) *
+          0.5;
+      morphProgress = (normalizedProgress - 0.5) * 2; // Scale to 0-1 range for this model
+      targetModelIndex = 1;
+    } else {
+      // After all morphing (maintain full Horse form)
+      normalizedProgress = 1.0;
+      morphProgress = 1.0;
+      targetModelIndex = 1;
     }
 
     if (!simMaterial.current || !simGeometry.current) return;
@@ -323,12 +340,37 @@ const Experience = ({ cubePos, pointsRef, scrollRef }: ExperienceProps) => {
     // Update morph progress in shader
     simMaterial.current.uniforms.uMorphProgress.value = morphProgress;
 
-    if (
-      targetModelIndex !== -1 &&
-      morphTargetTexture.current[targetModelIndex]
-    ) {
-      simMaterial.current.uniforms.uTargetPositions.value =
-        morphTargetTexture.current[targetModelIndex];
+    // Add normalized progress uniform if it exists
+    if (simMaterial.current.uniforms.uNormalizedProgress) {
+      simMaterial.current.uniforms.uNormalizedProgress.value =
+        normalizedProgress;
+    }
+
+    // Set the appropriate target textures for transitions
+    if (normalizedProgress > 0) {
+      // When morphing to Totoro
+      if (normalizedProgress <= 0.5) {
+        if (morphTargetTexture.current[0]) {
+          simMaterial.current.uniforms.uTargetPositions.value =
+            morphTargetTexture.current[0];
+        }
+      }
+      // When morphing to Horse, or beyond
+      else {
+        if (morphTargetTexture.current[1]) {
+          simMaterial.current.uniforms.uTargetPositions.value =
+            morphTargetTexture.current[1];
+
+          // Also provide previous model texture for blending if available
+          if (
+            simMaterial.current.uniforms.uPrevTargetPositions &&
+            morphTargetTexture.current[0]
+          ) {
+            simMaterial.current.uniforms.uPrevTargetPositions.value =
+              morphTargetTexture.current[0];
+          }
+        }
+      }
     }
 
     // SIMULATION
@@ -344,7 +386,7 @@ const Experience = ({ cubePos, pointsRef, scrollRef }: ExperienceProps) => {
     // state.gl.autoClear = false;
 
     // Only emit particles if we're not morphing
-    if (scrollRef.current <= MORPH_RANGES.TOTORO.START + 0.05) {
+    if (normalizedProgress <= 0 + 0.1) {
       emitters.current.forEach((emitter) => {
         emitter.mesh.getWorldPosition(v.current);
         v1.current = v.current.clone();
@@ -393,7 +435,16 @@ const Experience = ({ cubePos, pointsRef, scrollRef }: ExperienceProps) => {
     material.current.uniforms.uTexture.value = renderTarget.texture;
     material.current.uniforms.uProgress.value = mappedProgress;
     material.current.uniforms.uMorphProgress.value = morphProgress;
+
+    // Pass normalized progress to shader for smooth transitions
+    if (material.current.uniforms.uNormalizedProgress) {
+      material.current.uniforms.uNormalizedProgress.value = normalizedProgress;
+    }
+
     // Pass current model index for color blending in shader
+    if (material.current.uniforms.uModelIndex) {
+      material.current.uniforms.uModelIndex.value = targetModelIndex;
+    }
 
     simMaterial.current.uniforms.uCurrentPosition.value = renderTarget1.texture;
     simMaterial.current.uniforms.uTime.value = elapsedTime;
@@ -409,10 +460,10 @@ const Experience = ({ cubePos, pointsRef, scrollRef }: ExperienceProps) => {
     });
 
     // If we're morphing, adjust the original model's opacity/visibility
-    if (scrollRef.current <= MORPH_RANGES.TOTORO.START + 0.05) {
-      scene1.visible = true;
-    } else {
+    if (normalizedProgress > 0 + 0.1) {
       scene1.visible = false;
+    } else {
+      scene1.visible = true;
     }
 
     // Rotate the model based on mouse position

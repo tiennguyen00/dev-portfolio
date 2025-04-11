@@ -11,6 +11,8 @@ const RenderMaterial = shaderMaterial(
     uTexture: new THREE.Uniform(null),
     uProgress: new THREE.Uniform(0),
     uMorphProgress: new THREE.Uniform(0),
+    uNormalizedProgress: new THREE.Uniform(0),
+    uModelIndex: new THREE.Uniform(-1),
   },
   vertexShader,
   fragmentShader

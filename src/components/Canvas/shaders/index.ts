@@ -18,7 +18,9 @@ uniform vec3 uSource;
 uniform sampler2D uCurrentPosition;
 uniform sampler2D uDirections;
 uniform sampler2D uTargetPositions;
+uniform sampler2D uPrevTargetPositions;
 uniform float uMorphProgress;
+uniform float uNormalizedProgress;
 uniform vec3 uMouse;
 uniform float uTime;
 float rand(vec2 co){
@@ -44,12 +46,34 @@ void main() {
         // Base particle movement
         vec3 newPosition = position.xyz + speedlife*direction.xyz * 0.01 + vec3(0.,-1,0.)*0.15 + vec3(0.,0.,-1.)*0.01;
         
-        // If morph is in progress, blend positions
-        if (uMorphProgress > 0.0) {
-            vec3 targetPos = texture2D(uTargetPositions, vUv).xyz;
-            // Ease the transition using smoothstep
-            float ease = smoothstep(0.0, 1.0, uMorphProgress);
-            newPosition = mix(newPosition, targetPos, ease);
+        // If morphing is in progress
+        if (uNormalizedProgress > 0.0) {
+            vec3 targetPos;
+            
+            if (uNormalizedProgress <= 0.5) {
+                // First transition (Particles to Totoro)
+                targetPos = texture2D(uTargetPositions, vUv).xyz;
+                
+                // Use normalized progress mapped to 0-1 for this transition
+                float transitionProgress = uNormalizedProgress * 2.0; // Scale 0-0.5 to 0-1
+                float ease = smoothstep(0.0, 1.0, transitionProgress);
+                
+                // Smooth interpolation
+                newPosition = mix(newPosition, targetPos, ease);
+            } 
+            else {
+                // Second transition (Totoro to Horse)
+                vec3 prevTargetPos = texture2D(uPrevTargetPositions, vUv).xyz;
+                vec3 currentTargetPos = texture2D(uTargetPositions, vUv).xyz;
+                
+                // Map 0.5-1.0 range to 0-1 for this transition
+                float transitionProgress = (uNormalizedProgress - 0.5) * 2.0;
+                float ease = smoothstep(0.0, 1.0, transitionProgress);
+                
+                // Directly blend between the two target positions
+                // This prevents scattering effect during reverse transitions
+                newPosition = mix(prevTargetPos, currentTargetPos, ease);
+            }
         }
 
         gl_FragColor = vec4(newPosition, life);
@@ -108,6 +132,8 @@ uniform sampler2D uTexture;
 varying float vLife;
 uniform float uProgress;
 uniform float uMorphProgress;
+uniform float uNormalizedProgress;
+uniform int uModelIndex;
 
 void main() {
     // Only discard particles with low life when NOT morphing
@@ -119,11 +145,23 @@ void main() {
     vec3 baseGlowColor = mix(vec3(0.08, 0.53, 0.96), vec3(0.6, 0.4, 1.3), uProgress) * 4.5;
     
     // Totoro color (gray with hint of green)
-    // for horse: 1.0, 0.85, 0.4
-    vec3 totoroColor = vec3(1.0, 0.98, 0.9) * 2.5;
+    vec3 totoroColor = vec3(0.54, 0.60, 0.36) * 2.5;
     
-    // Blend between colors based on morph progress
-    vec3 finalColor = mix(baseGlowColor, totoroColor, smoothstep(0.0, 1.0, uMorphProgress));
+    // Horse color (golden/amber)
+    vec3 horseColor = vec3(1.0, 0.30, 0.23) * 3.;
+    
+    vec3 finalColor;
+    
+    if (uModelIndex == -1) {
+        // Base particles
+        finalColor = baseGlowColor;
+    } else if (uModelIndex == 0) {
+        // Totoro
+        finalColor = mix(baseGlowColor, totoroColor, smoothstep(0.0, 1.0, uMorphProgress));
+    } else {
+        // Horse - with smooth transition from Totoro
+        finalColor = mix(totoroColor, horseColor, smoothstep(0.0, 1.0, uMorphProgress));
+    }
     
     // Adjust alpha based on morphing state
     float alpha = uMorphProgress > 0.0 ? 0.8 : (0.64 * vLife);
