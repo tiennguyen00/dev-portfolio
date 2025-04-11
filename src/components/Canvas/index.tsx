@@ -2,7 +2,6 @@ import { Canvas } from "@react-three/fiber";
 import Experience from "./Experience";
 import { useRef } from "react";
 import * as THREE from "three";
-import Horse from "./Horse";
 import Effect from "./Effects";
 
 const CanvasPage = ({ scrollRef }: { scrollRef: React.RefObject<number> }) => {
@@ -29,7 +28,6 @@ const CanvasPage = ({ scrollRef }: { scrollRef: React.RefObject<number> }) => {
         pointsRef={pointsRef}
         scrollRef={scrollRef}
       />
-      <Horse />
       <Effect pointsRef={pointsRef} />
     </Canvas>
   );
