@@ -28,6 +28,11 @@ const Experience = ({ cubePos, pointsRef, scrollRef }: ExperienceProps) => {
   const emitters = useRef<THREE.Mesh[]>([]);
   const morphTargetTexture = useRef<THREE.Texture[]>([]);
 
+  const MORPH_RANGES = {
+    TOTORO: { START: 0.21, END: 0.4 },
+    HORSE: { START: 0.41, END: 0.6 },
+  };
+
   const sceneFBO = useRef<THREE.Scene>(new THREE.Scene());
   const viewArea = size / 2 + 0.01;
   const cameraFBO = useRef<THREE.OrthographicCamera>(
@@ -251,26 +256,42 @@ const Experience = ({ cubePos, pointsRef, scrollRef }: ExperienceProps) => {
   ]);
   //===============================================
 
+  // Calculate morphing progress and determine which model to use
+  let morphProgress = 0;
+  let targetModelIndex = -1; // -1: no morph, 0: Totoro, 1: Horse
+
   useFrame((state, delta) => {
     const elapsedTime = state.clock.elapsedTime;
     // value from 0 -> 1 ======================================
-    const mappedProgress = Math.min(1, scrollRef.current / 0.2);
+    const mappedProgress = Math.min(
+      1,
+      scrollRef.current / MORPH_RANGES.TOTORO.START
+    );
     const currentPathVector = path.getPointAt(mappedProgress);
-
-    // Set the morph progress based on scroll position
-    // Start morphing after 60% of the scroll and complete by 90%
-    const morphStart = 0.25;
-    const morphEnd = 0.4;
-    const morphProgress =
-      scrollRef.current > morphStart
-        ? Math.min(
-            1,
-            (scrollRef.current - morphStart) / (morphEnd - morphStart)
-          )
-        : 0;
 
     if (scene1) {
       scene1.position.copy(cubePos.current).multiplyScalar(1.5);
+    }
+
+    // Check if we're in Totoro morph range
+    if (
+      scrollRef.current >= MORPH_RANGES.TOTORO.START &&
+      scrollRef.current <= MORPH_RANGES.TOTORO.END
+    ) {
+      morphProgress =
+        (scrollRef.current - MORPH_RANGES.TOTORO.START) /
+        (MORPH_RANGES.TOTORO.END - MORPH_RANGES.TOTORO.START);
+      targetModelIndex = 0; // Totoro
+    }
+    // Check if we're in Horse morph range
+    else if (
+      scrollRef.current >= MORPH_RANGES.HORSE.START &&
+      scrollRef.current <= MORPH_RANGES.HORSE.END
+    ) {
+      morphProgress =
+        (scrollRef.current - MORPH_RANGES.HORSE.START) /
+        (MORPH_RANGES.HORSE.END - MORPH_RANGES.HORSE.START);
+      targetModelIndex = 1; // Horse
     }
 
     if (!simMaterial.current || !simGeometry.current) return;
@@ -292,14 +313,23 @@ const Experience = ({ cubePos, pointsRef, scrollRef }: ExperienceProps) => {
       state.gl.render(sceneFBO.current, cameraFBO.current);
       simMaterial.current.uniforms.uCurrentPosition.value = initPos.texture;
 
-      // Set the target positions texture
+      // Set the target positions texture (initial setup)
       if (morphTargetTexture.current[0]) {
         simMaterial.current.uniforms.uTargetPositions.value =
           morphTargetTexture.current[0];
       }
     }
 
+    // Update morph progress in shader
     simMaterial.current.uniforms.uMorphProgress.value = morphProgress;
+
+    if (
+      targetModelIndex !== -1 &&
+      morphTargetTexture.current[targetModelIndex]
+    ) {
+      simMaterial.current.uniforms.uTargetPositions.value =
+        morphTargetTexture.current[targetModelIndex];
+    }
 
     // SIMULATION
     simMaterial.current.uniforms.uDirections.value = directions.texture;
@@ -313,8 +343,8 @@ const Experience = ({ cubePos, pointsRef, scrollRef }: ExperienceProps) => {
     const emit = 1;
     // state.gl.autoClear = false;
 
-    // Only emit particles if we're not morphing to Totoro
-    if (morphProgress <= 0) {
+    // Only emit particles if we're not morphing
+    if (scrollRef.current <= MORPH_RANGES.TOTORO.START + 0.05) {
       emitters.current.forEach((emitter) => {
         emitter.mesh.getWorldPosition(v.current);
         v1.current = v.current.clone();
@@ -349,6 +379,7 @@ const Experience = ({ cubePos, pointsRef, scrollRef }: ExperienceProps) => {
         emitter.prev = v.current.clone();
       });
     }
+
     // END OF EMIITER
 
     // RENDER SCENE
@@ -362,6 +393,7 @@ const Experience = ({ cubePos, pointsRef, scrollRef }: ExperienceProps) => {
     material.current.uniforms.uTexture.value = renderTarget.texture;
     material.current.uniforms.uProgress.value = mappedProgress;
     material.current.uniforms.uMorphProgress.value = morphProgress;
+    // Pass current model index for color blending in shader
 
     simMaterial.current.uniforms.uCurrentPosition.value = renderTarget1.texture;
     simMaterial.current.uniforms.uTime.value = elapsedTime;
@@ -377,10 +409,10 @@ const Experience = ({ cubePos, pointsRef, scrollRef }: ExperienceProps) => {
     });
 
     // If we're morphing, adjust the original model's opacity/visibility
-    if (morphProgress > 0) {
-      scene1.visible = false;
-    } else {
+    if (scrollRef.current <= MORPH_RANGES.TOTORO.START + 0.05) {
       scene1.visible = true;
+    } else {
+      scene1.visible = false;
     }
 
     // Rotate the model based on mouse position

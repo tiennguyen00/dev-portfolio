@@ -45,7 +45,7 @@ function App() {
 
   return (
     <div className="w-full min-h-[800dvh] relative scrollcontainer">
-      <Contents scrollRef={scrollProgress} />
+      {/* <Contents scrollRef={scrollProgress} /> */}
       <CanvasPage scrollRef={scrollProgress} />
     </div>
   );
