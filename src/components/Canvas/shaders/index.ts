@@ -60,6 +60,30 @@ void main() {
                 
                 // Smooth interpolation
                 newPosition = mix(newPosition, targetPos, ease);
+
+                // Add floating animation ONLY for Totoro after it's fully formed
+                // Apply when uNormalizedProgress is exactly 0.5, which is the stable Totoro state
+                if (abs(uNormalizedProgress) >= 0.25) {
+                    // Create gentle floating effect using sine waves with different frequencies
+                    float floatAmount = 0.1;
+                    
+                    // Offset based on UV to create varied movement across the model
+                    float uvOffset = vUv.x * 3.14159 + vUv.y * 2.71828;
+                    
+                    float speedVariation = 5.;
+                    
+                    // Each particle gets a slightly different amplitude
+                    float amplitudeVariation = 2.0 + 0.4 * rand(vUv + vec2(0.2, 0.3)); // 0.8-1.2 range
+                    
+                    // Gentle vertical floating - main movement
+                    newPosition.y += sin(uTime * 0.7 * speedVariation + uvOffset) * floatAmount * amplitudeVariation;
+                    
+                    // Subtle side-to-side motion
+                    newPosition.x += cos(uTime * 0.4 * speedVariation + uvOffset * 1.3) * floatAmount * 0.4 * amplitudeVariation;
+                    
+                    // Subtle forward/backward motion
+                    newPosition.z += sin(uTime * 0.3 * speedVariation + uvOffset * 1.7) * floatAmount * 0.3 * amplitudeVariation;
+                }
             } 
             else {
                 // Second transition (Totoro to Horse)

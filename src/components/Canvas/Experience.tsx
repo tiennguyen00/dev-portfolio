@@ -29,8 +29,8 @@ const Experience = ({ cubePos, pointsRef, scrollRef }: ExperienceProps) => {
   const morphTargetTexture = useRef<THREE.Texture[]>([]);
 
   const MORPH_RANGES = {
-    TOTORO: { START: 0.21, END: 0.4 },
-    HORSE: { START: 0.41, END: 0.6 },
+    TOTORO: { START: 0.21, END: 0.35 },
+    HORSE: { START: 0.35, END: 0.45 },
   };
 
   const sceneFBO = useRef<THREE.Scene>(new THREE.Scene());
@@ -54,12 +54,15 @@ const Experience = ({ cubePos, pointsRef, scrollRef }: ExperienceProps) => {
   const simGeometry = useRef<THREE.BufferGeometry>(null!);
 
   const { scene: scene1, animations } = useGLTF("/models/test.glb");
-  const [{ scene: totoroScene }, { scene: horseScene }] = useGLTF([
-    "/models/totoro_1.glb",
-    "/models/horses.glb",
-  ]);
+  const [
+    { scene: totoroScene },
+    { scene: horseScene, animations: horseAnimations },
+  ] = useGLTF(["/models/totoro_1.glb", "/models/horses.glb"]);
   const { clips, mixer } = useAnimations(animations, scene1);
-
+  const { clips: horseClips, mixer: horseMixer } = useAnimations(
+    horseAnimations,
+    horseScene
+  );
   const wireframeMaterials: THREE.ShaderMaterial[] = [];
 
   // Extract Totoro model positions for morphing
@@ -70,7 +73,7 @@ const Experience = ({ cubePos, pointsRef, scrollRef }: ExperienceProps) => {
 
     const rotationMatrix = new THREE.Matrix4().makeRotationY(Math.PI / 4);
     const translationMatrix = new THREE.Matrix4().makeTranslation(
-      -viewport.width / 3 + 15,
+      -viewport.width / 3 + 17,
       -10,
       15
     );
@@ -114,7 +117,7 @@ const Experience = ({ cubePos, pointsRef, scrollRef }: ExperienceProps) => {
 
     const transformMatrix = new THREE.Matrix4();
 
-    const rotationMatrix = new THREE.Matrix4().makeRotationY(Math.PI / 4);
+    const rotationMatrix = new THREE.Matrix4().makeRotationY(Math.PI / 3);
     const translationMatrix = new THREE.Matrix4().makeTranslation(
       -viewport.width / 3 + 15,
       -10,
@@ -140,7 +143,7 @@ const Experience = ({ cubePos, pointsRef, scrollRef }: ExperienceProps) => {
           vertex.applyMatrix4(mesh.matrixWorld);
 
           // Scale the model
-          vertex.multiplyScalar(5);
+          vertex.multiplyScalar(6);
 
           // Apply our custom transformation to position in yellow area and face camera
           vertex.applyMatrix4(transformMatrix);
@@ -217,6 +220,7 @@ const Experience = ({ cubePos, pointsRef, scrollRef }: ExperienceProps) => {
 
     // scene1.rotation.x = -Math.PI / 10;
     mixer.clipAction(clips[0]).play();
+    horseMixer.clipAction(horseClips[0]).play();
     mixer.timeScale = 0.875;
   }, []);
 
@@ -451,6 +455,9 @@ const Experience = ({ cubePos, pointsRef, scrollRef }: ExperienceProps) => {
 
     if (mixer) {
       mixer.update(delta);
+    }
+    if (horseMixer) {
+      horseMixer.update(delta);
     }
 
     // Update all wireframe materials with current time

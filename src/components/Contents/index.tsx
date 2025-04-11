@@ -61,7 +61,7 @@ const Contents = ({ scrollRef }: { scrollRef: React.RefObject<number> }) => {
 
       // Fade out (all sections except the last)
       if (index < totalSections - 1) {
-        const fadeOutStart = sectionEnd - step * 0.15;
+        const fadeOutStart = sectionEnd - step * 0.05;
 
         tl.current?.to(
           section,
