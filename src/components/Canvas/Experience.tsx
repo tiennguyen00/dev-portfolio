@@ -9,7 +9,7 @@ import "./shaders/RenderMaterial";
 import "./shaders/SimMaterial";
 import { wireframeVertexShader, wireframeFragmentShader } from "./shaders";
 import { createPositionTexture, resamplePositions } from "./utils/textureUtils";
-
+import Test from "./Test";
 const size = 64,
   number = size * size;
 
@@ -27,10 +27,12 @@ const Experience = ({ cubePos, pointsRef, scrollRef }: ExperienceProps) => {
   const currentParticles = useRef(0);
   const emitters = useRef<THREE.Mesh[]>([]);
   const morphTargetTexture = useRef<THREE.Texture[]>([]);
+  const horsePositionAttrRef = useRef<THREE.BufferAttribute | null>(null);
 
   const MORPH_RANGES = {
     TOTORO: { START: 0.21, END: 0.35 },
-    HORSE: { START: 0.4, END: 0.5 },
+    HAT: { START: 0.4, END: 0.5 },
+    HORSE: { START: 0.55, END: 0.65 },
   };
 
   const sceneFBO = useRef<THREE.Scene>(new THREE.Scene());
@@ -57,7 +59,7 @@ const Experience = ({ cubePos, pointsRef, scrollRef }: ExperienceProps) => {
   const [
     { scene: totoroScene },
     { scene: horseScene, animations: horseAnimations },
-    { scene: wolfScene },
+    { scene: hatScene },
   ] = useGLTF([
     "/models/totoro_1.glb",
     "/models/horses.glb",
@@ -103,10 +105,7 @@ const Experience = ({ cubePos, pointsRef, scrollRef }: ExperienceProps) => {
           // Scale the model
           vertex.multiplyScalar(5);
 
-          // Apply our custom transformation to position in yellow area and face camera
           vertex.applyMatrix4(transformMatrix);
-
-          // Add position to positions array
           positions.push(vertex.x, vertex.y, vertex.z);
         }
       }
@@ -145,13 +144,9 @@ const Experience = ({ cubePos, pointsRef, scrollRef }: ExperienceProps) => {
           // Apply mesh's local transformation
           vertex.applyMatrix4(mesh.matrixWorld);
 
-          // Scale the model
-          vertex.multiplyScalar(5);
+          vertex.multiplyScalar(0.1);
 
-          // Apply our custom transformation to position in yellow area and face camera
           vertex.applyMatrix4(transformMatrix);
-
-          // Add position to positions array
           positions.push(vertex.x, vertex.y, vertex.z);
         }
       }
@@ -160,7 +155,7 @@ const Experience = ({ cubePos, pointsRef, scrollRef }: ExperienceProps) => {
     return positions;
   }, [horseScene, viewport]);
 
-  const wolfPositions = useMemo(() => {
+  const hatPositions = useMemo(() => {
     const positions: number[] = [];
 
     const transformMatrix = new THREE.Matrix4();
@@ -175,7 +170,7 @@ const Experience = ({ cubePos, pointsRef, scrollRef }: ExperienceProps) => {
     // Combine rotation and translation
     transformMatrix.multiply(translationMatrix).multiply(rotationMatrix);
 
-    wolfScene.traverse((child) => {
+    hatScene.traverse((child) => {
       if ((child as THREE.Mesh).isMesh) {
         const mesh = child as THREE.Mesh;
         const geometry = mesh.geometry;
@@ -191,19 +186,16 @@ const Experience = ({ cubePos, pointsRef, scrollRef }: ExperienceProps) => {
           vertex.applyMatrix4(mesh.matrixWorld);
 
           // Scale the model
-          vertex.multiplyScalar(6);
+          vertex.multiplyScalar(6.5);
 
-          // Apply our custom transformation to position in yellow area and face camera
           vertex.applyMatrix4(transformMatrix);
-
-          // Add position to positions array
           positions.push(vertex.x, vertex.y, vertex.z);
         }
       }
     });
 
     return positions;
-  }, [wolfScene, viewport]);
+  }, [hatScene, viewport]);
 
   useEffect(() => {
     if (totoroPositions.length > 0) {
@@ -224,8 +216,8 @@ const Experience = ({ cubePos, pointsRef, scrollRef }: ExperienceProps) => {
       );
     }
 
-    if (wolfPositions.length > 0) {
-      const resampledPositions = resamplePositions(wolfPositions, size);
+    if (hatPositions.length > 0) {
+      const resampledPositions = resamplePositions(hatPositions, size);
 
       morphTargetTexture.current[2] = createPositionTexture(
         size,
@@ -277,8 +269,51 @@ const Experience = ({ cubePos, pointsRef, scrollRef }: ExperienceProps) => {
 
     // scene1.rotation.x = -Math.PI / 10;
     mixer.clipAction(clips[0]).play();
-    horseMixer.clipAction(horseClips[0]).play();
+
+    // Find and play the running animation specifically
+    if (horseClips.length > 0 && horseMixer) {
+      console.log(
+        "Available horse animations:",
+        horseClips.map((clip) => clip.name)
+      );
+
+      // Directly use "Animation.001" since we know it's the right one
+      const runClip = horseClips.find((clip) => clip.name === "Animation");
+
+      // Make sure we found the clip
+      if (runClip) {
+        // Set up the animation with dramatically enhanced parameters
+        const horseAction = horseMixer.clipAction(runClip);
+        horseAction.setEffectiveTimeScale(1.0); // Normal animation speed to match shader
+        horseAction.setEffectiveWeight(1.0); // Normal influence
+
+        // Reset and play the animation to ensure it's active
+        horseAction.reset();
+        horseAction.play();
+
+        console.log("Selected horse animation:", runClip.name);
+      } else {
+        console.error("Critical error: Animation.001 not found");
+      }
+    }
+
     mixer.timeScale = 0.875;
+
+    // Store a reference to the horse's position attribute
+    horseScene.traverse((child) => {
+      if ((child as THREE.Mesh).isMesh) {
+        const mesh = child as THREE.Mesh;
+        if (mesh.geometry && mesh.geometry.attributes.position) {
+          horsePositionAttrRef.current =
+            mesh.geometry.attributes.position.clone();
+        }
+      }
+    });
+
+    // Create custom uniforms for the shader to sample the current animation frame
+    if (simMaterial.current) {
+      // No need to add horse animation uniforms
+    }
   }, []);
 
   let renderTarget = useFBO(size, size, {
@@ -336,40 +371,55 @@ const Experience = ({ cubePos, pointsRef, scrollRef }: ExperienceProps) => {
     }
 
     // Create a unified parameter space for morphing (0-1 for entire sequence)
-    // 0.0-0.5: Particles to Totoro
-    // 0.5-1.0: Totoro to Horse
+    // 0.0-0.33: Particles to Totoro
+    // 0.33-0.66: Totoro to Hat
+    // 0.66-1.0: Hat to Horse
     if (scrollRef.current < MORPH_RANGES.TOTORO.START) {
       // Before any morphing
       normalizedProgress = 0;
       morphProgress = 0;
       targetModelIndex = -1;
     } else if (scrollRef.current <= MORPH_RANGES.TOTORO.END) {
-      // In Totoro range (0-0.5 in normalized space)
+      // In Totoro range (0-0.33 in normalized space)
       normalizedProgress =
         ((scrollRef.current - MORPH_RANGES.TOTORO.START) /
           (MORPH_RANGES.TOTORO.END - MORPH_RANGES.TOTORO.START)) *
-        0.5;
-      morphProgress = normalizedProgress * 2; // Scale to 0-1 range for this model
+        0.33;
+      morphProgress = normalizedProgress * 3; // Scale to 0-1 range for this model
       targetModelIndex = 0;
-    } else if (scrollRef.current < MORPH_RANGES.HORSE.START) {
-      // Between Totoro and Horse (maintain full Totoro form)
-      normalizedProgress = 0.5;
+    } else if (scrollRef.current < MORPH_RANGES.HAT.START) {
+      // Between Totoro and Hat (maintain full Totoro form)
+      normalizedProgress = 0.33;
       morphProgress = 1.0;
       targetModelIndex = 0;
-    } else if (scrollRef.current <= MORPH_RANGES.HORSE.END) {
-      // In Horse range (0.5-1.0 in normalized space)
+    } else if (scrollRef.current <= MORPH_RANGES.HAT.END) {
+      // In Hat range (0.33-0.66 in normalized space)
       normalizedProgress =
-        0.5 +
+        0.33 +
+        ((scrollRef.current - MORPH_RANGES.HAT.START) /
+          (MORPH_RANGES.HAT.END - MORPH_RANGES.HAT.START)) *
+          0.33;
+      morphProgress = (normalizedProgress - 0.33) * 3; // Scale to 0-1 range for this model
+      targetModelIndex = 1;
+    } else if (scrollRef.current < MORPH_RANGES.HORSE.START) {
+      // Between Hat and Horse (maintain full Hat form)
+      normalizedProgress = 0.66;
+      morphProgress = 1.0;
+      targetModelIndex = 1;
+    } else if (scrollRef.current <= MORPH_RANGES.HORSE.END) {
+      // In Horse range (0.66-1.0 in normalized space)
+      normalizedProgress =
+        0.66 +
         ((scrollRef.current - MORPH_RANGES.HORSE.START) /
           (MORPH_RANGES.HORSE.END - MORPH_RANGES.HORSE.START)) *
-          0.5;
-      morphProgress = (normalizedProgress - 0.5) * 2; // Scale to 0-1 range for this model
-      targetModelIndex = 1;
+          0.34;
+      morphProgress = (normalizedProgress - 0.66) * (1 / 0.34); // Scale to 0-1 range for this model
+      targetModelIndex = 2;
     } else {
       // After all morphing (maintain full Horse form)
       normalizedProgress = 1.0;
       morphProgress = 1.0;
-      targetModelIndex = 1;
+      targetModelIndex = 2;
     }
 
     if (!simMaterial.current || !simGeometry.current) return;
@@ -409,26 +459,42 @@ const Experience = ({ cubePos, pointsRef, scrollRef }: ExperienceProps) => {
 
     // Set the appropriate target textures for transitions
     if (normalizedProgress > 0) {
-      // When morphing to Totoro
-      if (normalizedProgress <= 0.5) {
+      // When morphing to Totoro (0-0.33 range)
+      if (normalizedProgress <= 0.33) {
         if (morphTargetTexture.current[0]) {
           simMaterial.current.uniforms.uTargetPositions.value =
             morphTargetTexture.current[0];
         }
       }
-      // When morphing to Horse, or beyond
-      else {
+      // When morphing to Hat (0.33-0.66 range)
+      else if (normalizedProgress <= 0.66) {
         if (morphTargetTexture.current[2]) {
           simMaterial.current.uniforms.uTargetPositions.value =
             morphTargetTexture.current[2];
 
-          // Also provide previous model texture for blending if available
+          // Also provide previous model texture (Totoro) for blending
           if (
             simMaterial.current.uniforms.uPrevTargetPositions &&
             morphTargetTexture.current[0]
           ) {
             simMaterial.current.uniforms.uPrevTargetPositions.value =
               morphTargetTexture.current[0];
+          }
+        }
+      }
+      // When morphing to Horse (0.66-1.0 range)
+      else {
+        if (morphTargetTexture.current[1]) {
+          simMaterial.current.uniforms.uTargetPositions.value =
+            morphTargetTexture.current[1];
+
+          // Also provide previous model texture (Hat) for blending
+          if (
+            simMaterial.current.uniforms.uPrevTargetPositions &&
+            morphTargetTexture.current[2]
+          ) {
+            simMaterial.current.uniforms.uPrevTargetPositions.value =
+              morphTargetTexture.current[2];
           }
         }
       }
@@ -510,9 +576,12 @@ const Experience = ({ cubePos, pointsRef, scrollRef }: ExperienceProps) => {
     simMaterial.current.uniforms.uCurrentPosition.value = renderTarget1.texture;
     simMaterial.current.uniforms.uTime.value = elapsedTime;
 
+    // Update the animations
     if (mixer) {
       mixer.update(delta);
     }
+
+    // Always update the horse mixer to keep its animation going
     if (horseMixer) {
       horseMixer.update(delta);
     }
@@ -592,9 +661,56 @@ const Experience = ({ cubePos, pointsRef, scrollRef }: ExperienceProps) => {
     return { positionSim: pos, uvsSim: uv };
   }, []);
 
+  // Create a reference for the animated horse points
+  const animFrameRef = useRef<number | null>(null);
+
+  useEffect(() => {
+    // Clean up animation frame on unmount
+    return () => {
+      if (animFrameRef.current) {
+        cancelAnimationFrame(animFrameRef.current);
+      }
+    };
+  }, []);
+
   return (
     <>
       <primitive object={scene1} />
+      <group>
+        {/* Original horse model */}
+        <primitive
+          object={horseScene}
+          scale={0.1}
+          rotation-y={Math.PI / 2}
+          position={[2, -10, 15]}
+          visible={normalizedProgress < 0.8} // Hide once particle version is fully formed
+        />
+
+        {/* Points version of the horse for better integration with particles */}
+        <points scale={0.1} rotation-y={Math.PI / 2} position={[2, -10, 15]}>
+          <bufferGeometry>
+            <bufferAttribute
+              attach="attributes-position"
+              count={horsePositions.length / 3}
+              array={new Float32Array(horsePositions)}
+              itemSize={3}
+            />
+          </bufferGeometry>
+          <pointsMaterial
+            size={0.3}
+            color="#ff6b38"
+            transparent={true}
+            blending={THREE.AdditiveBlending}
+            depthWrite={false}
+            sizeAttenuation={true}
+            visible={normalizedProgress > 0.66} // Only show during horse phase
+          />
+        </points>
+      </group>
+      {/* Only show Test component when we're not showing our own particle models */}
+      <group visible={false}>
+        <Test />
+      </group>
       {createPortal(
         <points>
           <bufferGeometry ref={simGeometry}>

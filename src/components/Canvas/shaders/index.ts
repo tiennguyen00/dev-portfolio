@@ -50,19 +50,18 @@ void main() {
         if (uNormalizedProgress > 0.0) {
             vec3 targetPos;
             
-            if (uNormalizedProgress <= 0.5) {
+            if (uNormalizedProgress <= 0.33) {
                 // First transition (Particles to Totoro)
                 targetPos = texture2D(uTargetPositions, vUv).xyz;
                 
                 // Use normalized progress mapped to 0-1 for this transition
-                float transitionProgress = uNormalizedProgress * 2.0; // Scale 0-0.5 to 0-1
+                float transitionProgress = uNormalizedProgress * 3.0; // Scale 0-0.33 to 0-1
                 float ease = smoothstep(0.0, 1.0, transitionProgress);
                 
                 // Smooth interpolation
                 newPosition = mix(newPosition, targetPos, ease);
 
                 // Add floating animation ONLY for Totoro after it's fully formed
-                // Apply when uNormalizedProgress is exactly 0.5, which is the stable Totoro state
                 if (abs(uNormalizedProgress) >= 0.25) {
                     // Create gentle floating effect using sine waves with different frequencies
                     float floatAmount = 0.1;
@@ -85,17 +84,28 @@ void main() {
                     newPosition.z += sin(uTime * 0.3 * speedVariation + uvOffset * 1.7) * floatAmount * 0.3 * amplitudeVariation;
                 }
             } 
-            else {
-                // Second transition (Totoro to Horse)
+            else if (uNormalizedProgress <= 0.66) {
+                // Second transition (Totoro to Hat)
                 vec3 prevTargetPos = texture2D(uPrevTargetPositions, vUv).xyz;
                 vec3 currentTargetPos = texture2D(uTargetPositions, vUv).xyz;
                 
-                // Map 0.5-1.0 range to 0-1 for this transition
-                float transitionProgress = (uNormalizedProgress - 0.5) * 2.0;
+                // Map 0.33-0.66 range to 0-1 for this transition
+                float transitionProgress = (uNormalizedProgress - 0.33) * 3.0;
                 float ease = smoothstep(0.0, 1.0, transitionProgress);
                 
                 // Directly blend between the two target positions
-                // This prevents scattering effect during reverse transitions
+                newPosition = mix(prevTargetPos, currentTargetPos, ease);
+            }
+            else {
+                // Third transition (Hat to Horse)
+                vec3 prevTargetPos = texture2D(uPrevTargetPositions, vUv).xyz;
+                vec3 currentTargetPos = texture2D(uTargetPositions, vUv).xyz;
+                
+                // Map 0.66-1.0 range to 0-1 for this transition
+                float transitionProgress = (uNormalizedProgress - 0.66) * (1.0/0.34);
+                float ease = smoothstep(0.0, 1.0, transitionProgress);
+                
+                // Directly blend between Hat and Horse
                 newPosition = mix(prevTargetPos, currentTargetPos, ease);
             }
         }
@@ -171,6 +181,9 @@ void main() {
     // Totoro color (gray with hint of green)
     vec3 totoroColor = vec3(0.54, 0.60, 0.36) * 2.5;
     
+    // Hat color (deep purple)
+    vec3 hatColor = vec3(0.35, 0.16, 0.45) * 5.2;
+    
     // Horse color (golden/amber)
     vec3 horseColor = vec3(1.0, 0.30, 0.23) * 3.;
     
@@ -182,9 +195,12 @@ void main() {
     } else if (uModelIndex == 0) {
         // Totoro
         finalColor = mix(baseGlowColor, totoroColor, smoothstep(0.0, 1.0, uMorphProgress));
+    } else if (uModelIndex == 1) {
+        // Hat - with smooth transition from Totoro
+        finalColor = mix(totoroColor, hatColor, smoothstep(0.0, 1.0, uMorphProgress));
     } else {
-        // Horse - with smooth transition from Totoro
-        finalColor = mix(totoroColor, horseColor, smoothstep(0.0, 1.0, uMorphProgress));
+        // Horse - with smooth transition from Hat
+        finalColor = mix(hatColor, horseColor, smoothstep(0.0, 1.0, uMorphProgress));
     }
     
     // Adjust alpha based on morphing state
