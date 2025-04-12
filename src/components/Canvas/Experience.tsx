@@ -30,7 +30,7 @@ const Experience = ({ cubePos, pointsRef, scrollRef }: ExperienceProps) => {
 
   const MORPH_RANGES = {
     TOTORO: { START: 0.21, END: 0.35 },
-    HORSE: { START: 0.35, END: 0.45 },
+    HORSE: { START: 0.4, END: 0.5 },
   };
 
   const sceneFBO = useRef<THREE.Scene>(new THREE.Scene());
@@ -57,7 +57,12 @@ const Experience = ({ cubePos, pointsRef, scrollRef }: ExperienceProps) => {
   const [
     { scene: totoroScene },
     { scene: horseScene, animations: horseAnimations },
-  ] = useGLTF(["/models/totoro_1.glb", "/models/horses.glb"]);
+    { scene: wolfScene },
+  ] = useGLTF([
+    "/models/totoro_1.glb",
+    "/models/horses.glb",
+    "/models/witch_hat.glb",
+  ]);
   const { clips, mixer } = useAnimations(animations, scene1);
   const { clips: horseClips, mixer: horseMixer } = useAnimations(
     horseAnimations,
@@ -65,7 +70,6 @@ const Experience = ({ cubePos, pointsRef, scrollRef }: ExperienceProps) => {
   );
   const wireframeMaterials: THREE.ShaderMaterial[] = [];
 
-  // Extract Totoro model positions for morphing
   const totoroPositions = useMemo(() => {
     const positions: number[] = [];
 
@@ -73,7 +77,7 @@ const Experience = ({ cubePos, pointsRef, scrollRef }: ExperienceProps) => {
 
     const rotationMatrix = new THREE.Matrix4().makeRotationY(Math.PI / 4);
     const translationMatrix = new THREE.Matrix4().makeTranslation(
-      -viewport.width / 3 + 17,
+      -viewport.width / 4 + 8,
       -10,
       15
     );
@@ -111,7 +115,6 @@ const Experience = ({ cubePos, pointsRef, scrollRef }: ExperienceProps) => {
     return positions;
   }, [totoroScene, viewport]);
 
-  // Extract Totoro model positions for morphing
   const horsePositions = useMemo(() => {
     const positions: number[] = [];
 
@@ -119,7 +122,7 @@ const Experience = ({ cubePos, pointsRef, scrollRef }: ExperienceProps) => {
 
     const rotationMatrix = new THREE.Matrix4().makeRotationY(Math.PI / 3);
     const translationMatrix = new THREE.Matrix4().makeTranslation(
-      -viewport.width / 3 + 15,
+      -viewport.width / 4 + 5,
       -10,
       15
     );
@@ -128,6 +131,51 @@ const Experience = ({ cubePos, pointsRef, scrollRef }: ExperienceProps) => {
     transformMatrix.multiply(translationMatrix).multiply(rotationMatrix);
 
     horseScene.traverse((child) => {
+      if ((child as THREE.Mesh).isMesh) {
+        const mesh = child as THREE.Mesh;
+        const geometry = mesh.geometry;
+        const positionAttribute = geometry.attributes.position;
+
+        // Process each vertex
+        for (let i = 0; i < positionAttribute.count; i++) {
+          // Get vertex position in local space
+          const vertex = new THREE.Vector3();
+          vertex.fromBufferAttribute(positionAttribute, i);
+
+          // Apply mesh's local transformation
+          vertex.applyMatrix4(mesh.matrixWorld);
+
+          // Scale the model
+          vertex.multiplyScalar(5);
+
+          // Apply our custom transformation to position in yellow area and face camera
+          vertex.applyMatrix4(transformMatrix);
+
+          // Add position to positions array
+          positions.push(vertex.x, vertex.y, vertex.z);
+        }
+      }
+    });
+
+    return positions;
+  }, [horseScene, viewport]);
+
+  const wolfPositions = useMemo(() => {
+    const positions: number[] = [];
+
+    const transformMatrix = new THREE.Matrix4();
+
+    const rotationMatrix = new THREE.Matrix4().makeRotationX(Math.PI / 8);
+    const translationMatrix = new THREE.Matrix4().makeTranslation(
+      -viewport.width / 4 + 10,
+      -2.5,
+      15
+    );
+
+    // Combine rotation and translation
+    transformMatrix.multiply(translationMatrix).multiply(rotationMatrix);
+
+    wolfScene.traverse((child) => {
       if ((child as THREE.Mesh).isMesh) {
         const mesh = child as THREE.Mesh;
         const geometry = mesh.geometry;
@@ -155,7 +203,7 @@ const Experience = ({ cubePos, pointsRef, scrollRef }: ExperienceProps) => {
     });
 
     return positions;
-  }, [horseScene, viewport]);
+  }, [wolfScene, viewport]);
 
   useEffect(() => {
     if (totoroPositions.length > 0) {
@@ -171,6 +219,15 @@ const Experience = ({ cubePos, pointsRef, scrollRef }: ExperienceProps) => {
       const resampledPositions = resamplePositions(horsePositions, size);
 
       morphTargetTexture.current[1] = createPositionTexture(
+        size,
+        resampledPositions
+      );
+    }
+
+    if (wolfPositions.length > 0) {
+      const resampledPositions = resamplePositions(wolfPositions, size);
+
+      morphTargetTexture.current[2] = createPositionTexture(
         size,
         resampledPositions
       );
@@ -361,9 +418,9 @@ const Experience = ({ cubePos, pointsRef, scrollRef }: ExperienceProps) => {
       }
       // When morphing to Horse, or beyond
       else {
-        if (morphTargetTexture.current[1]) {
+        if (morphTargetTexture.current[2]) {
           simMaterial.current.uniforms.uTargetPositions.value =
-            morphTargetTexture.current[1];
+            morphTargetTexture.current[2];
 
           // Also provide previous model texture for blending if available
           if (

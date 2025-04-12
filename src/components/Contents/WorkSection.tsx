@@ -114,14 +114,17 @@ const WorkSection = ({
           </div>
         </div>
 
-        <a
-          href={demo}
-          target="_blank"
-          rel="noopener noreferrer"
-          className="text-gray-300 text-left underline cursor-pointer pointer-events-auto"
-        >
-          {demo}
-        </a>
+        <div className="flex items-center pointer-events-auto space-x-2">
+          <h3 className="text-gray-300 font-bold text-left">Link:</h3>
+          <a
+            href={demo}
+            target="_blank"
+            rel="noopener noreferrer"
+            className="text-gray-300 text-left underline cursor-pointer pointer-events-auto"
+          >
+            {demo}
+          </a>
+        </div>
       </div>
     </div>
   );
