@@ -1,16 +1,22 @@
-import { useGLTF, useAnimations } from "@react-three/drei";
 import * as THREE from "three";
 import { useFrame } from "@react-three/fiber";
 import { useEffect, useRef } from "react";
 
-const Horse = () => {
+interface HorseProps {
+  scene: THREE.Scene;
+  mixer: THREE.AnimationMixer;
+  position: [number, number, number];
+  rotation: [number, number, number];
+  scale: [number, number, number];
+}
+
+const Horse = ({ scene, mixer, position, rotation, scale }: HorseProps) => {
   const refPoints = useRef<THREE.Points>(null);
-  const { scene: scene1, animations } = useGLTF("/models/horses.glb");
-  const { actions, clips, mixer } = useAnimations(animations, scene1);
+  console.log(scale, position, rotation);
 
   useEffect(() => {
-    if (refPoints.current && scene1.children.length > 0) {
-      const childMesh = scene1.children[0];
+    if (refPoints.current && scene.children.length > 0) {
+      const childMesh = scene.children[0];
       if (childMesh.geometry && childMesh.geometry.attributes.position) {
         const newGeometry = new THREE.BufferGeometry();
 
@@ -34,13 +40,7 @@ const Horse = () => {
           childMesh.morphTargetInfluences;
         refPoints.current.morphTargetDictionary =
           childMesh.morphTargetDictionary;
-        console.log("refPoints", refPoints.current);
       }
-    }
-
-    // Start the animation
-    if (clips.length > 0) {
-      mixer.clipAction(clips[0]).play();
     }
   }, []);
 
@@ -54,13 +54,13 @@ const Horse = () => {
     <>
       <points
         ref={refPoints}
-        scale={[0.1, 0.1, 0.1]}
-        position={[0, -10.5, 2.3]}
-        rotation-y={Math.PI / 2}
+        scale={scale}
+        position={position}
+        rotation={rotation}
       >
         <pointsMaterial
-          size={0.25}
-          color="#D18B47"
+          size={0.1}
+          color="#FFE6B1"
           morphTargets={true}
           transparent={true}
           blending={THREE.AdditiveBlending}

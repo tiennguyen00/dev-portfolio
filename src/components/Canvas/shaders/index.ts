@@ -95,6 +95,27 @@ void main() {
                 
                 // Directly blend between the two target positions
                 newPosition = mix(prevTargetPos, currentTargetPos, ease);
+                
+                // Add floating animation for Hat after it's formed
+                if (transitionProgress >= 0.75) {
+                    // Create a spinning/rotating float effect for the hat
+                    float floatAmount = 0.15;
+                    
+                    // Offset based on UV to create varied movement across the model
+                    float uvOffset = vUv.x * 2.71828 + vUv.y * 3.14159;
+                    
+                    float speedVariation = 3.5;
+                    
+                    // Each particle gets a slightly different amplitude
+                    float amplitudeVariation = 1.5 + 0.5 * rand(vUv + vec2(0.4, 0.1)); 
+                    
+                    // Gentle bobbing up and down - magical hat effect
+                    newPosition.y += sin(uTime * 0.6 * speedVariation + uvOffset) * floatAmount * amplitudeVariation;
+                    
+                    // Slight spiraling horizontal motion - like a witch's hat floating
+                    newPosition.x += sin(uTime * 0.5 * speedVariation + uvOffset * 1.5) * floatAmount * 0.5 * amplitudeVariation;
+                    newPosition.z += cos(uTime * 0.5 * speedVariation + uvOffset * 1.5) * floatAmount * 0.5 * amplitudeVariation;
+                }
             }
             else {
                 // Third transition (Hat to Horse)
@@ -182,7 +203,7 @@ void main() {
     vec3 totoroColor = vec3(0.54, 0.60, 0.36) * 2.5;
     
     // Hat color (deep purple)
-    vec3 hatColor = vec3(0.35, 0.16, 0.45) * 5.2;
+    vec3 hatColor = vec3(0.35, 0.16, 0.45) * 6.2;
     
     // Horse color (golden/amber)
     vec3 horseColor = vec3(1.0, 0.30, 0.23) * 3.;

@@ -272,29 +272,8 @@ const Experience = ({ cubePos, pointsRef, scrollRef }: ExperienceProps) => {
 
     // Find and play the running animation specifically
     if (horseClips.length > 0 && horseMixer) {
-      console.log(
-        "Available horse animations:",
-        horseClips.map((clip) => clip.name)
-      );
-
-      // Directly use "Animation.001" since we know it's the right one
-      const runClip = horseClips.find((clip) => clip.name === "Animation");
-
-      // Make sure we found the clip
-      if (runClip) {
-        // Set up the animation with dramatically enhanced parameters
-        const horseAction = horseMixer.clipAction(runClip);
-        horseAction.setEffectiveTimeScale(1.0); // Normal animation speed to match shader
-        horseAction.setEffectiveWeight(1.0); // Normal influence
-
-        // Reset and play the animation to ensure it's active
-        horseAction.reset();
-        horseAction.play();
-
-        console.log("Selected horse animation:", runClip.name);
-      } else {
-        console.error("Critical error: Animation.001 not found");
-      }
+      horseMixer.timeScale = 0.4;
+      // horseMixer.clipAction(horseClips[0]).play();
     }
 
     mixer.timeScale = 0.875;
@@ -455,6 +434,16 @@ const Experience = ({ cubePos, pointsRef, scrollRef }: ExperienceProps) => {
     if (simMaterial.current.uniforms.uNormalizedProgress) {
       simMaterial.current.uniforms.uNormalizedProgress.value =
         normalizedProgress;
+    }
+
+    // Set the model index for floating animation
+    if (simMaterial.current.uniforms.uModelIndex) {
+      simMaterial.current.uniforms.uModelIndex.value = targetModelIndex;
+    }
+
+    // Set the useTargetTexture flag to true
+    if (simMaterial.current.uniforms.uUseTargetTexture) {
+      simMaterial.current.uniforms.uUseTargetTexture.value = true;
     }
 
     // Set the appropriate target textures for transitions
@@ -676,16 +665,15 @@ const Experience = ({ cubePos, pointsRef, scrollRef }: ExperienceProps) => {
   return (
     <>
       <primitive object={scene1} />
-      <group>
-        {/* Original horse model */}
-        <primitive
-          object={horseScene}
-          scale={0.1}
-          rotation-y={Math.PI / 2}
-          position={[2, -10, 15]}
-          visible={normalizedProgress < 0.8} // Hide once particle version is fully formed
-        />
+      {/* <Test
+        scene={horseScene}
+        mixer={horseMixer}
+        position={[-viewport.width / 4 + 5, -10, 15]}
+        rotation={[0, Math.PI / 3, 0]}
+        scale={[0.1, 0.1, 0.1]}
+      /> */}
 
+      <group>
         {/* Points version of the horse for better integration with particles */}
         <points scale={0.1} rotation-y={Math.PI / 2} position={[2, -10, 15]}>
           <bufferGeometry>
@@ -709,7 +697,7 @@ const Experience = ({ cubePos, pointsRef, scrollRef }: ExperienceProps) => {
       </group>
       {/* Only show Test component when we're not showing our own particle models */}
       <group visible={false}>
-        <Test />
+        <Test scene={horseScene} mixer={horseMixer} />
       </group>
       {createPortal(
         <points>
