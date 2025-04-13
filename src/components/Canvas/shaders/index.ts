@@ -34,8 +34,8 @@ void main() {
     if(uRenderMode==0){
         float life;
         if (uMorphProgress > 0.0) {
-            // Keep particles alive during morphing
-            life = 1.0;
+            // Keep particles alive during morphing, but fade them out in HORSE_RUN range
+            life = uProgress >= 0.81 ? 0.0 : 1.0;
         } else {
             // Normal life calculation when not morphing
             life = 1. - clamp( (uTime - direction.a)/15., 0.,1.);
@@ -193,11 +193,13 @@ uniform int uModelIndex;
 void main() {
     // Only discard particles with low life when NOT morphing
     if(vLife < 0.88 && uMorphProgress <= 0.0) discard;
+    if(uProgress >= 0.81) discard;
     
     vec4 color = texture2D( uTexture, vUv );
     
     // Base glow color (blue/purple)
-    vec3 baseGlowColor = mix(vec3(0.08, 0.53, 0.96), vec3(0.6, 0.4, 1.3), uProgress) * 4.5;
+    float remapUProgress = clamp(uProgress / 0.2, 0.0, 1.0);
+    vec3 baseGlowColor = mix(vec3(0.08, 0.53, 0.96), vec3(0.6, 0.4, 1.3), remapUProgress) * 4.5;
     
     // Totoro color (gray with hint of green)
     vec3 totoroColor = vec3(0.54, 0.60, 0.36) * 2.5;
@@ -231,7 +233,7 @@ void main() {
 }
 `;
 
-const wireframeVertexShader = `
+export const wireframeVertexShader = `
   #include <skinning_pars_vertex>
   
   uniform float uTime;
@@ -248,7 +250,7 @@ const wireframeVertexShader = `
   }
 `;
 
-const wireframeFragmentShader = `
+export const wireframeFragmentShader = `
   uniform float uTime;
   varying vec3 vPosition;
   uniform float uProgress;
@@ -281,5 +283,3 @@ const wireframeFragmentShader = `
     gl_FragColor = vec4(finalColor, alpha);
   }
 `;
-
-export { wireframeVertexShader, wireframeFragmentShader };

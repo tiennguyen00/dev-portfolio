@@ -7,17 +7,23 @@ export const BLOOM_LAYER = 1;
 
 const Effect = ({
   pointsRef,
+  pointHorseAnimRef,
 }: {
   pointsRef: React.RefObject<THREE.Points>;
+  pointHorseAnimRef: React.RefObject<THREE.Points>;
 }) => {
   const lightRef = useRef<THREE.PointLight>(null);
   const [points, setPoints] = useState<Array<THREE.Points>>([]);
 
   useEffect(() => {
-    if (pointsRef.current) {
-      setPoints([pointsRef.current]);
+    if (pointsRef.current && pointHorseAnimRef.current) {
+      setPoints([pointsRef.current, pointHorseAnimRef.current]);
     }
-  }, [pointsRef.current]);
+  }, [pointsRef.current, pointHorseAnimRef.current]);
+
+  useEffect(() => {
+    console.log(points);
+  }, [points]);
   return (
     <>
       <ambientLight ref={lightRef} intensity={0.5} />

@@ -17,9 +17,15 @@ interface ExperienceProps {
   cubePos: React.MutableRefObject<THREE.Vector3>;
   pointsRef: React.RefObject<THREE.Points>;
   scrollRef: React.RefObject<number>;
+  pointHorseAnimRef: React.RefObject<THREE.Points>;
 }
 
-const Experience = ({ cubePos, pointsRef, scrollRef }: ExperienceProps) => {
+const Experience = ({
+  cubePos,
+  pointsRef,
+  scrollRef,
+  pointHorseAnimRef,
+}: ExperienceProps) => {
   const { mouse, viewport } = useThree();
   const init = useRef(false);
   const v = useRef(new THREE.Vector3(0, 0, 0));
@@ -27,12 +33,12 @@ const Experience = ({ cubePos, pointsRef, scrollRef }: ExperienceProps) => {
   const currentParticles = useRef(0);
   const emitters = useRef<THREE.Mesh[]>([]);
   const morphTargetTexture = useRef<THREE.Texture[]>([]);
-  const horsePositionAttrRef = useRef<THREE.BufferAttribute | null>(null);
 
   const MORPH_RANGES = {
-    TOTORO: { START: 0.21, END: 0.35 },
-    HAT: { START: 0.4, END: 0.5 },
-    HORSE: { START: 0.55, END: 0.65 },
+    TOTORO: { START: 0.21, END: 0.4 },
+    HAT: { START: 0.41, END: 0.6 },
+    HORSE: { START: 0.61, END: 0.8 },
+    HORSE_RUN: { START: 0.81, END: 1 },
   };
 
   const sceneFBO = useRef<THREE.Scene>(new THREE.Scene());
@@ -272,26 +278,7 @@ const Experience = ({ cubePos, pointsRef, scrollRef }: ExperienceProps) => {
 
     // Find and play the running animation specifically
     if (horseClips.length > 0 && horseMixer) {
-      horseMixer.timeScale = 0.4;
-      // horseMixer.clipAction(horseClips[0]).play();
-    }
-
-    mixer.timeScale = 0.875;
-
-    // Store a reference to the horse's position attribute
-    horseScene.traverse((child) => {
-      if ((child as THREE.Mesh).isMesh) {
-        const mesh = child as THREE.Mesh;
-        if (mesh.geometry && mesh.geometry.attributes.position) {
-          horsePositionAttrRef.current =
-            mesh.geometry.attributes.position.clone();
-        }
-      }
-    });
-
-    // Create custom uniforms for the shader to sample the current animation frame
-    if (simMaterial.current) {
-      // No need to add horse animation uniforms
+      horseMixer.timeScale = 0.5;
     }
   }, []);
 
@@ -335,6 +322,8 @@ const Experience = ({ cubePos, pointsRef, scrollRef }: ExperienceProps) => {
   let morphProgress = 0;
   let targetModelIndex = -1; // -1: no morph, 0: Totoro, 1: Horse
   let normalizedProgress = 0; // 0-1 unified parameter space across all transitions. 0 = no morph
+
+  const showRunningHorseRef = useRef(false);
 
   useFrame((state, delta) => {
     const elapsedTime = state.clock.elapsedTime;
@@ -549,7 +538,7 @@ const Experience = ({ cubePos, pointsRef, scrollRef }: ExperienceProps) => {
     renderTarget1 = tmp;
 
     material.current.uniforms.uTexture.value = renderTarget.texture;
-    material.current.uniforms.uProgress.value = mappedProgress;
+    material.current.uniforms.uProgress.value = scrollRef.current;
     material.current.uniforms.uMorphProgress.value = morphProgress;
 
     // Pass normalized progress to shader for smooth transitions
@@ -611,6 +600,10 @@ const Experience = ({ cubePos, pointsRef, scrollRef }: ExperienceProps) => {
 
       scene1.position.copy(currentPathVector);
     }
+
+    // Update the running horse visibility reference
+    showRunningHorseRef.current =
+      scrollRef.current > MORPH_RANGES.HORSE_RUN.START;
   });
 
   // ================================
@@ -650,28 +643,20 @@ const Experience = ({ cubePos, pointsRef, scrollRef }: ExperienceProps) => {
     return { positionSim: pos, uvsSim: uv };
   }, []);
 
-  // Create a reference for the animated horse points
-  const animFrameRef = useRef<number | null>(null);
-
-  useEffect(() => {
-    // Clean up animation frame on unmount
-    return () => {
-      if (animFrameRef.current) {
-        cancelAnimationFrame(animFrameRef.current);
-      }
-    };
-  }, []);
-
   return (
     <>
       <primitive object={scene1} />
-      {/* <Test
+      <Test
+        pointHorseAnimRef={pointHorseAnimRef}
         scene={horseScene}
-        mixer={horseMixer}
+        horseMixer={horseMixer}
+        horseClips={horseClips}
         position={[-viewport.width / 4 + 5, -10, 15]}
         rotation={[0, Math.PI / 3, 0]}
         scale={[0.1, 0.1, 0.1]}
-      /> */}
+        scrollRef={scrollRef}
+        horseRunStart={MORPH_RANGES.HORSE_RUN.START}
+      />
 
       <group>
         {/* Points version of the horse for better integration with particles */}
@@ -695,10 +680,7 @@ const Experience = ({ cubePos, pointsRef, scrollRef }: ExperienceProps) => {
           />
         </points>
       </group>
-      {/* Only show Test component when we're not showing our own particle models */}
-      <group visible={false}>
-        <Test scene={horseScene} mixer={horseMixer} />
-      </group>
+
       {createPortal(
         <points>
           <bufferGeometry ref={simGeometry}>

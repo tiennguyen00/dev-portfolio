@@ -7,6 +7,7 @@ import Effect from "./Effects";
 const CanvasPage = ({ scrollRef }: { scrollRef: React.RefObject<number> }) => {
   const cubePos = useRef<THREE.Vector3>(new THREE.Vector3());
   const pointsRef = useRef<THREE.Points>(null!);
+  const pointHorseAnimRef = useRef<THREE.Points>(null!);
 
   return (
     <Canvas
@@ -27,8 +28,9 @@ const CanvasPage = ({ scrollRef }: { scrollRef: React.RefObject<number> }) => {
         cubePos={cubePos}
         pointsRef={pointsRef}
         scrollRef={scrollRef}
+        pointHorseAnimRef={pointHorseAnimRef}
       />
-      <Effect pointsRef={pointsRef} />
+      <Effect pointsRef={pointsRef} pointHorseAnimRef={pointHorseAnimRef} />
     </Canvas>
   );
 };
