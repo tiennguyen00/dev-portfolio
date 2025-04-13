@@ -1,5 +1,5 @@
 import CanvasPage from "./components/Canvas";
-import Contents from "./components/Contents";
+// import Contents from "./components/Contents";
 import { useGSAP } from "@gsap/react";
 import gsap from "gsap";
 import { ScrollTrigger } from "gsap/ScrollTrigger";

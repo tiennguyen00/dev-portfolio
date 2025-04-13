@@ -63,6 +63,7 @@ const Horse = ({
         if ("morphTargetInfluences" in childMesh) {
           pointHorseAnimRef.current.morphTargetInfluences =
             childMesh.morphTargetInfluences;
+          ``;
         }
 
         if ("morphTargetDictionary" in childMesh) {
