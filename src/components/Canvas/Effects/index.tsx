@@ -21,9 +21,6 @@ const Effect = ({
     }
   }, [pointsRef.current, pointHorseAnimRef.current]);
 
-  useEffect(() => {
-    console.log(points);
-  }, [points]);
   return (
     <>
       <ambientLight ref={lightRef} intensity={0.5} />

@@ -658,29 +658,6 @@ const Experience = ({
         horseRunStart={MORPH_RANGES.HORSE_RUN.START}
       />
 
-      <group>
-        {/* Points version of the horse for better integration with particles */}
-        <points scale={0.1} rotation-y={Math.PI / 2} position={[2, -10, 15]}>
-          <bufferGeometry>
-            <bufferAttribute
-              attach="attributes-position"
-              count={horsePositions.length / 3}
-              array={new Float32Array(horsePositions)}
-              itemSize={3}
-            />
-          </bufferGeometry>
-          <pointsMaterial
-            size={0.3}
-            color="#ff6b38"
-            transparent={true}
-            blending={THREE.AdditiveBlending}
-            depthWrite={false}
-            sizeAttenuation={true}
-            visible={normalizedProgress > 0.66} // Only show during horse phase
-          />
-        </points>
-      </group>
-
       {createPortal(
         <points>
           <bufferGeometry ref={simGeometry}>
