@@ -2,20 +2,21 @@
 // @ts-nocheck
 import { shaderMaterial } from "@react-three/drei";
 import { extend } from "@react-three/fiber";
-import { vertexShader, fragmentShader } from "./index";
+import horseVertexShader from "./horse/vertex.vert";
+import horseFragmentShader from "./horse/fragment.frag";
 import * as THREE from "three";
 
 const HorseMaterial = shaderMaterial(
   {
-    time: new THREE.Uniform(0),
-    uTexture: new THREE.Uniform(null),
-    uProgress: new THREE.Uniform(0),
-    uMorphProgress: new THREE.Uniform(0),
-    uNormalizedProgress: new THREE.Uniform(0),
-    uModelIndex: new THREE.Uniform(-1),
+    uSize: { value: 2 },
+    uTime: { value: 0 },
+    uPixelRatio: { value: Math.min(window.devicePixelRatio, 2) },
+    uScroll: { value: 0.75 },
+    uRange: { value: 0.25 },
+    uTotalModels: { value: 4 },
   },
-  vertexShader,
-  fragmentShader
+  horseVertexShader,
+  horseFragmentShader
 );
 
 extend({ HorseMaterial });
