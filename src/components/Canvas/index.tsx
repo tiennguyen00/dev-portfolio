@@ -5,7 +5,6 @@ import * as THREE from "three";
 import Effect from "./Effects";
 
 const CanvasPage = ({ scrollRef }: { scrollRef: React.RefObject<number> }) => {
-  const cubePos = useRef<THREE.Vector3>(new THREE.Vector3());
   const pointsRef = useRef<THREE.Points>(null!);
   const pointHorseAnimRef = useRef<THREE.Points>(null!);
 
@@ -25,7 +24,6 @@ const CanvasPage = ({ scrollRef }: { scrollRef: React.RefObject<number> }) => {
       <color attach="background" args={["#222"]} />
       {/* <StatsGl className="top-0 left-0 fixed" trackGPU /> */}
       <Experience
-        cubePos={cubePos}
         pointsRef={pointsRef}
         scrollRef={scrollRef}
         pointHorseAnimRef={pointHorseAnimRef}

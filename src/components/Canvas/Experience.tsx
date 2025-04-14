@@ -2,7 +2,7 @@
 // @ts-nocheck
 import * as THREE from "three";
 import { useEffect, useMemo, useRef } from "react";
-import { useFBO, useGLTF, useAnimations } from "@react-three/drei";
+import { useFBO } from "@react-three/drei";
 import { useFrame, createPortal, useThree } from "@react-three/fiber";
 import { lerp } from "three/src/math/MathUtils.js";
 import "./shaders/RenderMaterial";
@@ -10,19 +10,19 @@ import "./shaders/SimMaterial";
 import wireframeVertexShader from "./shaders/wireframe/vertex.vert";
 import wireframeFragmentShader from "./shaders/wireframe/fragment.frag";
 import { createPositionTexture, resamplePositions } from "./utils/textureUtils";
-import Test from "./Test";
+import Horse from "./Horse";
+import useModels from "./useModels";
+import useDataPosition from "./useDataPosition";
 const size = 64,
   number = size * size;
 
 interface ExperienceProps {
-  cubePos: React.MutableRefObject<THREE.Vector3>;
   pointsRef: React.RefObject<THREE.Points>;
   scrollRef: React.RefObject<number>;
   pointHorseAnimRef: React.RefObject<THREE.Points>;
 }
 
 const Experience = ({
-  cubePos,
   pointsRef,
   scrollRef,
   pointHorseAnimRef,
@@ -38,8 +38,8 @@ const Experience = ({
   const MORPH_RANGES = {
     TOTORO: { START: 0.21, END: 0.4 },
     HAT: { START: 0.41, END: 0.6 },
-    HORSE: { START: 0.61, END: 0.8 },
-    HORSE_RUN: { START: 0.81, END: 1 },
+    E2: { START: 0.61, END: 0.8 },
+    HORSE: { START: 0.81, END: 1 },
   };
 
   const sceneFBO = useRef<THREE.Scene>(new THREE.Scene());
@@ -61,164 +61,37 @@ const Experience = ({
   const material = useRef<THREE.ShaderMaterial>(null);
   const simMaterial = useRef<THREE.ShaderMaterial>(null!);
   const simGeometry = useRef<THREE.BufferGeometry>(null!);
+  const wireframeMaterials = useRef<THREE.ShaderMaterial[]>([]);
 
-  const { scene: scene1, animations } = useGLTF("/models/test.glb");
-  const [
-    { scene: totoroScene },
-    { scene: horseScene, animations: horseAnimations },
-    { scene: hatScene },
-    { scene: e2Scene },
-  ] = useGLTF([
-    "/models/totoro_1.glb",
-    "/models/horses.glb",
-    "/models/witch_hat.glb",
-    "/models/e2.glb",
-  ]);
-  const { clips, mixer } = useAnimations(animations, scene1);
-  const { clips: horseClips, mixer: horseMixer } = useAnimations(
-    horseAnimations,
-    horseScene
-  );
-  const wireframeMaterials: THREE.ShaderMaterial[] = [];
+  const {
+    horseScene,
+    e2Scene,
+    birdScene,
+    clips,
+    mixer,
+    horseClips,
+    horseMixer,
+  } = useModels();
 
-  const totoroPositions = useMemo(() => {
-    const positions: number[] = [];
-
-    const transformMatrix = new THREE.Matrix4();
-
-    const rotationMatrix = new THREE.Matrix4().makeRotationY(Math.PI / 4);
-    const translationMatrix = new THREE.Matrix4().makeTranslation(
-      -viewport.width / 4 + 8,
-      -10,
-      15
-    );
-
-    // Combine rotation and translation
-    transformMatrix.multiply(translationMatrix).multiply(rotationMatrix);
-
-    totoroScene.traverse((child) => {
-      if ((child as THREE.Mesh).isMesh) {
-        const mesh = child as THREE.Mesh;
-        const geometry = mesh.geometry;
-        const positionAttribute = geometry.attributes.position;
-
-        // Process each vertex
-        for (let i = 0; i < positionAttribute.count; i++) {
-          // Get vertex position in local space
-          const vertex = new THREE.Vector3();
-          vertex.fromBufferAttribute(positionAttribute, i);
-
-          // Apply mesh's local transformation
-          vertex.applyMatrix4(mesh.matrixWorld);
-
-          // Scale the model
-          vertex.multiplyScalar(5);
-
-          vertex.applyMatrix4(transformMatrix);
-          positions.push(vertex.x, vertex.y, vertex.z);
-        }
-      }
-    });
-
-    return positions;
-  }, [totoroScene, viewport]);
-
-  const horsePositions = useMemo(() => {
-    const positions: number[] = [];
-
-    const transformMatrix = new THREE.Matrix4();
-
-    const rotationMatrix = new THREE.Matrix4().makeRotationY(Math.PI / 3);
-    const translationMatrix = new THREE.Matrix4().makeTranslation(
-      -viewport.width / 4 + 5,
-      -10,
-      15
-    );
-
-    // Combine rotation and translation
-    transformMatrix.multiply(translationMatrix).multiply(rotationMatrix);
-
-    horseScene.traverse((child) => {
-      if ((child as THREE.Mesh).isMesh) {
-        const mesh = child as THREE.Mesh;
-        const geometry = mesh.geometry;
-        const positionAttribute = geometry.attributes.position;
-
-        // Process each vertex
-        for (let i = 0; i < positionAttribute.count; i++) {
-          // Get vertex position in local space
-          const vertex = new THREE.Vector3();
-          vertex.fromBufferAttribute(positionAttribute, i);
-
-          // Apply mesh's local transformation
-          vertex.applyMatrix4(mesh.matrixWorld);
-
-          vertex.multiplyScalar(0.1);
-
-          vertex.applyMatrix4(transformMatrix);
-          positions.push(vertex.x, vertex.y, vertex.z);
-        }
-      }
-    });
-
-    return positions;
-  }, [horseScene, viewport]);
-
-  const hatPositions = useMemo(() => {
-    const positions: number[] = [];
-
-    const transformMatrix = new THREE.Matrix4();
-
-    const rotationMatrix = new THREE.Matrix4().makeRotationX(Math.PI / 8);
-    const translationMatrix = new THREE.Matrix4().makeTranslation(
-      -viewport.width / 4 + 10,
-      -2.5,
-      15
-    );
-
-    // Combine rotation and translation
-    transformMatrix.multiply(translationMatrix).multiply(rotationMatrix);
-
-    hatScene.traverse((child) => {
-      if ((child as THREE.Mesh).isMesh) {
-        const mesh = child as THREE.Mesh;
-        const geometry = mesh.geometry;
-        const positionAttribute = geometry.attributes.position;
-
-        // Process each vertex
-        for (let i = 0; i < positionAttribute.count; i++) {
-          // Get vertex position in local space
-          const vertex = new THREE.Vector3();
-          vertex.fromBufferAttribute(positionAttribute, i);
-
-          // Apply mesh's local transformation
-          vertex.applyMatrix4(mesh.matrixWorld);
-
-          // Scale the model
-          vertex.multiplyScalar(6.5);
-
-          vertex.applyMatrix4(transformMatrix);
-          positions.push(vertex.x, vertex.y, vertex.z);
-        }
-      }
-    });
-
-    return positions;
-  }, [hatScene, viewport]);
+  const {
+    totoroPositions,
+    hatPositions,
+    e2Positions,
+    horseInfoTransfroms,
+    e2InfoTransfroms,
+  } = useDataPosition();
 
   useEffect(() => {
     if (totoroPositions.length > 0) {
       const resampledPositions = resamplePositions(totoroPositions, size);
-
       morphTargetTexture.current[0] = createPositionTexture(
         size,
         resampledPositions
       );
     }
 
-    if (horsePositions.length > 0) {
-      const resampledPositions = resamplePositions(horsePositions, size);
-
+    if (e2Positions.length > 0) {
+      const resampledPositions = resamplePositions(e2Positions, size);
       morphTargetTexture.current[1] = createPositionTexture(
         size,
         resampledPositions
@@ -227,7 +100,6 @@ const Experience = ({
 
     if (hatPositions.length > 0) {
       const resampledPositions = resamplePositions(hatPositions, size);
-
       morphTargetTexture.current[2] = createPositionTexture(
         size,
         resampledPositions
@@ -235,7 +107,7 @@ const Experience = ({
     }
 
     let index = 0;
-    scene1.traverse((m) => {
+    birdScene.traverse((m) => {
       if (m.isSkinnedMesh) {
         if (m.name.startsWith("Plane")) {
           const material = new THREE.ShaderMaterial({
@@ -245,14 +117,12 @@ const Experience = ({
             transparent: true,
             toneMapped: false,
             uniforms: {
-              position2: new THREE.Uniform(m.position),
               uTime: new THREE.Uniform(0),
               uProgress: new THREE.Uniform(0),
             },
           });
 
-          wireframeMaterials.push(material);
-
+          wireframeMaterials.current.push(material);
           m.material = material;
         }
       }
@@ -276,13 +146,7 @@ const Experience = ({
       }
     });
 
-    // scene1.rotation.x = -Math.PI / 10;
     mixer.clipAction(clips[0]).play();
-
-    // Find and play the running animation specifically
-    if (horseClips.length > 0 && horseMixer) {
-      horseMixer.timeScale = 0.5;
-    }
   }, []);
 
   let renderTarget = useFBO(size, size, {
@@ -313,8 +177,8 @@ const Experience = ({
     type: THREE.FloatType,
   });
 
-  // Create the path tragetry
-  const path = new THREE.CatmullRomCurve3([
+  // Create the birdPath tragetry
+  const birdPath = new THREE.CatmullRomCurve3([
     new THREE.Vector3(0, 0, 0),
     new THREE.Vector3(0, 0, 30),
     new THREE.Vector3(0, viewport.height / 2 - 10, 10),
@@ -326,8 +190,6 @@ const Experience = ({
   let targetModelIndex = -1; // -1: no morph, 0: Totoro, 1: Horse
   let normalizedProgress = 0; // 0-1 unified parameter space across all transitions. 0 = no morph
 
-  const showRunningHorseRef = useRef(false);
-
   useFrame((state, delta) => {
     const elapsedTime = state.clock.elapsedTime;
     // value from 0 -> 1 ======================================
@@ -335,16 +197,13 @@ const Experience = ({
       1,
       scrollRef.current / MORPH_RANGES.TOTORO.START
     );
-    const currentPathVector = path.getPointAt(mappedProgress);
+    const currentPathVector = birdPath.getPointAt(mappedProgress);
 
-    if (scene1) {
-      scene1.position.copy(cubePos.current).multiplyScalar(1.5);
+    if (birdScene) {
+      birdScene.position.copy(new THREE.Vector3()).multiplyScalar(1.5);
     }
 
     // Create a unified parameter space for morphing (0-1 for entire sequence)
-    // 0.0-0.33: Particles to Totoro
-    // 0.33-0.66: Totoro to Hat
-    // 0.66-1.0: Hat to Horse
     if (scrollRef.current < MORPH_RANGES.TOTORO.START) {
       // Before any morphing
       normalizedProgress = 0;
@@ -372,17 +231,17 @@ const Experience = ({
           0.33;
       morphProgress = (normalizedProgress - 0.33) * 3; // Scale to 0-1 range for this model
       targetModelIndex = 1;
-    } else if (scrollRef.current < MORPH_RANGES.HORSE.START) {
+    } else if (scrollRef.current < MORPH_RANGES.E2.START) {
       // Between Hat and Horse (maintain full Hat form)
       normalizedProgress = 0.66;
       morphProgress = 1.0;
       targetModelIndex = 1;
-    } else if (scrollRef.current <= MORPH_RANGES.HORSE.END) {
+    } else if (scrollRef.current <= MORPH_RANGES.E2.END) {
       // In Horse range (0.66-1.0 in normalized space)
       normalizedProgress =
         0.66 +
-        ((scrollRef.current - MORPH_RANGES.HORSE.START) /
-          (MORPH_RANGES.HORSE.END - MORPH_RANGES.HORSE.START)) *
+        ((scrollRef.current - MORPH_RANGES.E2.START) /
+          (MORPH_RANGES.E2.END - MORPH_RANGES.E2.START)) *
           0.34;
       morphProgress = (normalizedProgress - 0.66) * (1 / 0.34); // Scale to 0-1 range for this model
       targetModelIndex = 2;
@@ -433,11 +292,6 @@ const Experience = ({
       simMaterial.current.uniforms.uModelIndex.value = targetModelIndex;
     }
 
-    // Set the useTargetTexture flag to true
-    if (simMaterial.current.uniforms.uUseTargetTexture) {
-      simMaterial.current.uniforms.uUseTargetTexture.value = true;
-    }
-
     // Set the appropriate target textures for transitions
     if (normalizedProgress > 0) {
       // When morphing to Totoro (0-0.33 range)
@@ -463,7 +317,7 @@ const Experience = ({
           }
         }
       }
-      // When morphing to Horse (0.66-1.0 range)
+      // When morphing to E2 (0.66-1.0 range)
       else {
         if (morphTargetTexture.current[1]) {
           simMaterial.current.uniforms.uTargetPositions.value =
@@ -557,7 +411,7 @@ const Experience = ({
     simMaterial.current.uniforms.uCurrentPosition.value = renderTarget1.texture;
     simMaterial.current.uniforms.uTime.value = elapsedTime;
 
-    // Update the animations
+    // Update the birdAnimations
     if (mixer) {
       mixer.update(delta);
     }
@@ -568,26 +422,26 @@ const Experience = ({
     }
 
     // Update all wireframe materials with current time
-    wireframeMaterials.forEach((material) => {
+    wireframeMaterials.current.forEach((material) => {
       material.uniforms.uTime.value = state.clock.elapsedTime;
       material.uniforms.uProgress.value = mappedProgress;
     });
 
     // If we're morphing, adjust the original model's opacity/visibility
     if (normalizedProgress > 0 + 0.1) {
-      scene1.visible = false;
+      birdScene.visible = false;
     } else {
-      scene1.visible = true;
+      birdScene.visible = true;
     }
 
     // Rotate the model based on mouse position
-    if (scene1) {
+    if (birdScene) {
       const targetRotationY = mouse.x * 0.654;
       const targetRotationX = -mouse.y * 0.654;
 
       // Apply smooth lerping to rotation
-      scene1.rotation.y += (targetRotationY - scene1.rotation.y) * 0.1;
-      scene1.rotation.x += (targetRotationX - scene1.rotation.x) * 0.1;
+      birdScene.rotation.y += (targetRotationY - birdScene.rotation.y) * 0.1;
+      birdScene.rotation.x += (targetRotationX - birdScene.rotation.x) * 0.1;
 
       // Scale based on distance from origin
       const distanceFromCenter = Math.sqrt(
@@ -597,16 +451,12 @@ const Experience = ({
       const targetScale = 1 - distanceFromCenter * 0.25; // Adjust the 0.25 to control scale reduction rate
 
       // Apply smooth scaling with lerp
-      scene1.scale.x += (targetScale - scene1.scale.x) * 0.1;
-      scene1.scale.y += (targetScale - scene1.scale.y) * 0.1;
-      scene1.scale.z += (targetScale - scene1.scale.z) * 0.1;
+      birdScene.scale.x += (targetScale - birdScene.scale.x) * 0.1;
+      birdScene.scale.y += (targetScale - birdScene.scale.y) * 0.1;
+      birdScene.scale.z += (targetScale - birdScene.scale.z) * 0.1;
 
-      scene1.position.copy(currentPathVector);
+      birdScene.position.copy(currentPathVector);
     }
-
-    // Update the running horse visibility reference
-    showRunningHorseRef.current =
-      scrollRef.current > MORPH_RANGES.HORSE_RUN.START;
   });
 
   // ================================
@@ -648,18 +498,17 @@ const Experience = ({
 
   return (
     <>
-      <primitive object={scene1} />
-      <Test
+      <primitive object={birdScene} />
+      <Horse
         pointHorseAnimRef={pointHorseAnimRef}
         scene={horseScene}
         horseMixer={horseMixer}
         horseClips={horseClips}
-        position={[-viewport.width / 4 + 5, -10, 15]}
-        rotation={[0, Math.PI / 3, 0]}
-        scale={[0.1, 0.1, 0.1]}
+        horseInfoTransfroms={horseInfoTransfroms}
+        e2InfoTransfroms={e2InfoTransfroms}
         scrollRef={scrollRef}
-        horseRunStart={MORPH_RANGES.HORSE_RUN.START}
-        totoroScene={e2Scene}
+        horseRunStart={MORPH_RANGES.HORSE.START}
+        e2Scene={e2Scene}
       />
 
       {createPortal(

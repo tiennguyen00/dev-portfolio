@@ -19,7 +19,6 @@ const SimMaterial = shaderMaterial(
     uTargetPositions: new THREE.Uniform(null),
     uPrevTargetPositions: new THREE.Uniform(null),
     uMorphProgress: new THREE.Uniform(0),
-    uUseTargetTexture: new THREE.Uniform(true),
     uNormalizedProgress: new THREE.Uniform(0),
     uModelIndex: new THREE.Uniform(0),
   },
