@@ -93,7 +93,7 @@ const Experience = ({
     if (e2Positions.length > 0) {
       const resampledPositions = resamplePositions(e2Positions, size);
       morphTargetTexture.current[1] = createPositionTexture(
-        size / 2,
+        size / 2.5,
         resampledPositions
       );
     }
