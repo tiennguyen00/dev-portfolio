@@ -16,6 +16,7 @@ interface HorseProps {
   horseRunStart?: number;
   horseMixer?: THREE.AnimationMixer;
   horseClips?: THREE.AnimationClip[];
+  totoroScene?: any;
 }
 
 const Horse = ({
@@ -26,6 +27,7 @@ const Horse = ({
   scale,
   horseMixer,
   horseClips,
+  totoroScene,
 }: HorseProps) => {
   const positionArray = useMemo(() => {
     if (scene.children.length > 0) {
@@ -84,8 +86,13 @@ const Horse = ({
       horseMixer.update(delta);
     }
 
+    const eslapTime = _state.clock.elapsedTime;
+
     // Copy morph target influences from the source mesh to our points
     if (pointHorseAnimRef.current && scene.children.length > 0) {
+      pointHorseAnimRef.current.material.uniforms.uTime.value = Math.abs(
+        Math.sin(eslapTime * 0.5)
+      );
       const sourceMesh = scene.children[0];
 
       if (
@@ -113,12 +120,47 @@ const Horse = ({
     }
   }, [horseMixer, horseClips, scene]);
 
+  useEffect(() => {
+    if (!totoroScene) return;
+    totoroScene.scale.set(40, 40, 40);
+    totoroScene.rotation.y = -Math.PI / 4;
+    totoroScene.position.y += 5;
+
+    // Update world matrix to include transformations
+    totoroScene.updateMatrixWorld(true);
+
+    const aE2Geometry = new Float32Array(
+      pointHorseAnimRef.current.geometry.attributes.position.array.length
+    );
+
+    const tempVector = new THREE.Vector3();
+    const sourcePositions =
+      totoroScene.children[0].geometry.attributes.position;
+
+    // Apply world matrix to each vertex
+    for (let i = 0; i < sourcePositions.count; i++) {
+      tempVector.fromBufferAttribute(sourcePositions, i);
+      tempVector.applyMatrix4(totoroScene.children[0].matrixWorld);
+
+      const baseIndex = i * 3;
+      aE2Geometry[baseIndex] = tempVector.x;
+      aE2Geometry[baseIndex + 1] = tempVector.y;
+      aE2Geometry[baseIndex + 2] = tempVector.z;
+    }
+
+    console.log("aE2Geometry", aE2Geometry.length);
+
+    pointHorseAnimRef.current.geometry.setAttribute(
+      "aE2Geometry",
+      new THREE.BufferAttribute(aE2Geometry, `3`)
+    );
+  }, [totoroScene, pointHorseAnimRef]);
+
   return (
     <>
       <points
         ref={pointHorseAnimRef}
         rotation={rotation}
-        scale={scale}
         position={position}
         rotation={rotation}
       >

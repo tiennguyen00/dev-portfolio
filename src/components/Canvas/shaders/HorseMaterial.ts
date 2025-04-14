@@ -8,12 +8,12 @@ import * as THREE from "three";
 
 const HorseMaterial = shaderMaterial(
   {
-    uSize: { value: 2 },
-    uTime: { value: 0 },
-    uPixelRatio: { value: Math.min(window.devicePixelRatio, 2) },
-    uScroll: { value: 0.75 },
-    uRange: { value: 0.25 },
-    uTotalModels: { value: 4 },
+    uSize: new THREE.Uniform(2),
+    uTime: new THREE.Uniform(0),
+    uPixelRatio: new THREE.Uniform(Math.min(window.devicePixelRatio, 2)),
+    uScroll: new THREE.Uniform(0.75),
+    uRange: new THREE.Uniform(0.25),
+    uTotalModels: new THREE.Uniform(4),
   },
   horseVertexShader,
   horseFragmentShader

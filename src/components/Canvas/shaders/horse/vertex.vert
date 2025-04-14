@@ -1,5 +1,4 @@
 attribute vec3 aE2Geometry;
-uniform sampler2D uPositions;//RenderTarget containing the transformed positions
 uniform float uSize;
 uniform float uTime;
 uniform float uPixelRatio;
@@ -48,30 +47,12 @@ void main() {
 
   #endif
 
-  vec4 originalPos = projectionMatrix * modelViewMatrix * vec4( aE2Geometry, 1.0 );
+  vec4 prevTargetPos = projectionMatrix * modelViewMatrix * vec4( aE2Geometry, 1.0 );
+  vec4 transformedPos = projectionMatrix * modelViewMatrix  * vec4( transformed.xyz * 0.1, 1.0 );;
 
-  // transformed.y -= 60.3;
-
-  vec4 transformedPos = projectionMatrix * modelViewMatrix  * vec4( transformed.xyz, 1.0 );;
-
-
-  // if (uScroll < uRange) {
-  //   gl_Position.w = 0.0;
-  // } else if (uScroll < uRange * 2.0) {
-  //   gl_Position.w = 0.0;
-  // } else if (uScroll < uRange * 3.0) {
-  //   gl_PointSize = mix(0.0, uSize, (uScroll - uRange * 2.0) * uTotalModels );
-  //   gl_Position = mix( originalPos, transformedPos, (uScroll - uRange * 2.0) * uTotalModels );
-  // } else {
-  //   float scroll = max((uScroll - uRange * 3.0), (uScroll - uRange * 3.0) * uTotalModels);
-  //   gl_PointSize = mix(uSize, 0.0, scroll);
-  //   originalPos.x -= 2.;
-  //   gl_Position = mix( transformedPos, originalPos, scroll);
-  // }
-
-  float scroll = max((uScroll - uRange * 3.0), (uScroll - uRange * 3.0) * uTotalModels);
-  gl_PointSize = 20. * (2.0 / -mvPosition.z);
-  gl_Position = transformedPos;
+  gl_PointSize = 0. * (2.0 / -mvPosition.z);
+  // gl_Position = transformedPos;
+  gl_Position = mix(transformedPos, prevTargetPos, uTime);
 
   #include <logdepthbuf_vertex>
   #include <clipping_planes_vertex>

@@ -67,10 +67,12 @@ const Experience = ({
     { scene: totoroScene },
     { scene: horseScene, animations: horseAnimations },
     { scene: hatScene },
+    { scene: e2Scene },
   ] = useGLTF([
     "/models/totoro_1.glb",
     "/models/horses.glb",
     "/models/witch_hat.glb",
+    "/models/e2.glb",
   ]);
   const { clips, mixer } = useAnimations(animations, scene1);
   const { clips: horseClips, mixer: horseMixer } = useAnimations(
@@ -657,6 +659,7 @@ const Experience = ({
         scale={[0.1, 0.1, 0.1]}
         scrollRef={scrollRef}
         horseRunStart={MORPH_RANGES.HORSE_RUN.START}
+        totoroScene={e2Scene}
       />
 
       {createPortal(
