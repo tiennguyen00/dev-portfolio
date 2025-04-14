@@ -2,7 +2,8 @@
 // @ts-nocheck
 import { shaderMaterial } from "@react-three/drei";
 import { extend } from "@react-three/fiber";
-import { simVertex, simFragment } from "./index";
+import simVertex from "./sims/vertex.vert";
+import simFragment from "./sims/fragment.frag";
 import * as THREE from "three";
 
 const SimMaterial = shaderMaterial(

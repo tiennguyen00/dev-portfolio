@@ -2,11 +2,10 @@
 // @ts-nocheck
 import { shaderMaterial } from "@react-three/drei";
 import { extend } from "@react-three/fiber";
-import vertexShader from "./render/vertex.vert";
-import fragmentShader from "./render/fragment.frag";
+import { vertexShader, fragmentShader } from "./index";
 import * as THREE from "three";
 
-const RenderMaterial = shaderMaterial(
+const HorseMaterial = shaderMaterial(
   {
     time: new THREE.Uniform(0),
     uTexture: new THREE.Uniform(null),
@@ -19,4 +18,4 @@ const RenderMaterial = shaderMaterial(
   fragmentShader
 );
 
-extend({ RenderMaterial });
+extend({ HorseMaterial });

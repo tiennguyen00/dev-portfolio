@@ -7,7 +7,8 @@ import { useFrame, createPortal, useThree } from "@react-three/fiber";
 import { lerp } from "three/src/math/MathUtils.js";
 import "./shaders/RenderMaterial";
 import "./shaders/SimMaterial";
-import { wireframeVertexShader, wireframeFragmentShader } from "./shaders";
+import wireframeVertexShader from "./shaders/wireframe/vertex.vert";
+import wireframeFragmentShader from "./shaders/wireframe/fragment.frag";
 import { createPositionTexture, resamplePositions } from "./utils/textureUtils";
 import Test from "./Test";
 const size = 64,
