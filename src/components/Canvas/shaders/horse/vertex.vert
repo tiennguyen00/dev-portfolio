@@ -1,6 +1,6 @@
 attribute vec3 aE2Geometry;
 uniform float uSize;
-uniform float uTime;
+uniform float uProgress;
 uniform float uPixelRatio;
 varying vec3 vPos;
 varying vec2 vUv;
@@ -52,7 +52,8 @@ void main() {
 
   gl_PointSize = 0. * (2.0 / -mvPosition.z);
   // gl_Position = transformedPos;
-  gl_Position = mix(transformedPos, prevTargetPos, uTime);
+  float mappedProgress = uProgress <= 0.81 ? 0.0 : (uProgress - 0.81) / 0.19;
+  gl_Position = mix(prevTargetPos, transformedPos, min(1., mappedProgress * 1.45));
 
   #include <logdepthbuf_vertex>
   #include <clipping_planes_vertex>

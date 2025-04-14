@@ -9,7 +9,10 @@ uniform int uModelIndex;
 void main() {
     // Only discard particles with low life when NOT morphing
     if(vLife < 0.88 && uMorphProgress <= 0.0) discard;
-    if(uProgress >= 0.81) discard;
+    
+   if(uProgress > 0.81) {
+        discard;
+    }
     
     vec4 color = texture2D( uTexture, vUv );
     
@@ -24,7 +27,7 @@ void main() {
     vec3 hatColor = vec3(0.35, 0.16, 0.45) * 6.2;
     
     // Horse color (golden/amber)
-    vec3 horseColor = vec3(1.0, 0.30, 0.23) * 3.;
+    vec3 horseColor = vec3(1.0, 0.30, 0.23) * 4.;
     
     vec3 finalColor;
     
@@ -42,8 +45,8 @@ void main() {
         finalColor = mix(hatColor, horseColor, smoothstep(0.0, 1.0, uMorphProgress));
     }
     
-    // Adjust alpha based on morphing state
-    float alpha = uMorphProgress > 0.0 ? 0.8 : (0.64 * vLife);
+    // Adjust alpha based on morphing state and our progress-based fade
+    float finalAlpha = uMorphProgress > 0.0 ? 0.8 : (0.64 * vLife);
     
-    gl_FragColor = vec4(finalColor, alpha);
+    gl_FragColor = vec4(finalColor, finalAlpha);
 }

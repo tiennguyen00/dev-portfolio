@@ -5,10 +5,11 @@ import { useMemo, useEffect } from "react";
 import { useFrame } from "@react-three/fiber";
 import "./shaders/HorseMaterial";
 import useDataPosition from "./useDataPosition";
+
 interface HorseProps {
   pointHorseAnimRef: React.RefObject<THREE.Points>;
   scene: THREE.Scene;
-  scrollRef?: React.RefObject<number>;
+  scrollRef?: React.MutableRefObject<number>;
   horseRunStart?: number;
   horseMixer?: THREE.AnimationMixer;
   horseClips?: THREE.AnimationClip[];
@@ -27,6 +28,7 @@ const Horse = ({
   e2Scene,
   e2InfoTransfroms,
   horseInfoTransfroms,
+  scrollRef,
 }: HorseProps) => {
   const positionArray = useMemo(() => {
     if (scene.children.length > 0) {
@@ -85,13 +87,18 @@ const Horse = ({
       horseMixer.update(delta);
     }
 
-    const eslapTime = _state.clock.elapsedTime;
-
     // Copy morph target influences from the source mesh to our points
     if (pointHorseAnimRef.current && scene.children.length > 0) {
-      pointHorseAnimRef.current.material.uniforms.uTime.value = Math.abs(
-        Math.sin(eslapTime * 0.5)
-      );
+      // Use scrollRef.current to get the latest scroll value
+      if (scrollRef && scrollRef.current !== undefined) {
+        pointHorseAnimRef.current.material.uniforms.uProgress.value =
+          scrollRef.current;
+
+        // console.log(
+        //   scrollRef.current <= 0.81 ? 0.0 : (scrollRef.current - 0.81) / 0.19
+        // );
+      }
+
       const sourceMesh = scene.children[0];
 
       if (

@@ -14,6 +14,7 @@ const HorseMaterial = shaderMaterial(
     uScroll: new THREE.Uniform(0.75),
     uRange: new THREE.Uniform(0.25),
     uTotalModels: new THREE.Uniform(4),
+    uProgress: new THREE.Uniform(0),
   },
   horseVertexShader,
   horseFragmentShader
