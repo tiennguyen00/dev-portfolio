@@ -5,7 +5,6 @@ import { extend } from "@react-three/fiber";
 import simVertex from "./sims/vertex.vert";
 import simFragment from "./sims/fragment.frag";
 import * as THREE from "three";
-
 const SimMaterial = shaderMaterial(
   {
     uMouse: new THREE.Uniform(new THREE.Vector3(0, 0, 0)),

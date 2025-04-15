@@ -23,13 +23,15 @@ interface ExperienceProps {
 }
 
 const MORPH_TOTALS = 3,
-  DELAY = 0.05;
+  DELAY = 0.05,
+  RANGE_UNIT = 0.125;
 
 const MORPH_RANGES = {
-  TOTORO: { START: 0.2 + DELAY, END: 0.4 },
-  HAT: { START: 0.4 + DELAY, END: 0.6 },
-  E2: { START: 0.6 + DELAY, END: 0.8 },
-  HORSE: { START: 0.8 + DELAY, END: 1 },
+  TOTORO: { START: 2 * RANGE_UNIT + DELAY, END: 3 * RANGE_UNIT },
+  HAT: { START: 3 * RANGE_UNIT + DELAY, END: 4 * RANGE_UNIT },
+  E2: { START: 4 * RANGE_UNIT + DELAY, END: 5 * RANGE_UNIT },
+  HORSE: { START: 5 * RANGE_UNIT + DELAY, END: 6 * RANGE_UNIT },
+  HORSE_RUN: { START: 6 * RANGE_UNIT + DELAY, END: 8 * RANGE_UNIT },
 };
 
 const Experience = ({
@@ -180,11 +182,28 @@ const Experience = ({
     type: THREE.FloatType,
   });
 
-  // Create the birdPath tragetry
+  // Create the path tragetry
   const birdPath = new THREE.CatmullRomCurve3([
     new THREE.Vector3(0, 0, 0),
     new THREE.Vector3(0, 0, 20),
     new THREE.Vector3(0, viewport.height / 2 - 10, 10),
+  ]);
+  const horsePath = new THREE.CatmullRomCurve3([
+    new THREE.Vector3(
+      horseInfoTransfroms.translation[0],
+      horseInfoTransfroms.translation[1],
+      horseInfoTransfroms.translation[2]
+    ),
+    new THREE.Vector3(
+      0,
+      horseInfoTransfroms.translation[1],
+      horseInfoTransfroms.translation[2]
+    ),
+    new THREE.Vector3(
+      -(2 * horseInfoTransfroms.translation[0]),
+      horseInfoTransfroms.translation[1],
+      horseInfoTransfroms.translation[2]
+    ),
   ]);
   //===============================================
 
@@ -503,8 +522,9 @@ const Experience = ({
         horseInfoTransfroms={horseInfoTransfroms}
         e2InfoTransfroms={e2InfoTransfroms}
         scrollRef={scrollRef}
-        horseRunStart={MORPH_RANGES.HORSE.START}
+        horseRunStart={MORPH_RANGES.HORSE_RUN.START}
         e2Scene={e2Scene}
+        horsePath={horsePath}
       />
 
       {createPortal(

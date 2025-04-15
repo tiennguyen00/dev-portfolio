@@ -10,14 +10,18 @@ void main() {
     // Only discard particles with low life when NOT morphing
     if(vLife < 0.88 && uMorphProgress <= 0.0) discard;
     
-   if(uProgress > 0.8) {
+   if(uProgress > 5. * 0.125 + 0.05) {
         discard;
     }
     
     vec4 color = texture2D( uTexture, vUv );
     
+    // Remap uProgress to 0-1 range
+    // when uProgress = 0 => return 0
+    // when uProgress = 2 * 0.125 => return 1
+    float remapUProgress = clamp(uProgress / (2.0 * 0.125), 0.0, 1.0);
+    
     // Base glow color (blue/purple)
-    float remapUProgress = clamp(uProgress / 0.2, 0.0, 1.0);
     vec3 baseGlowColor = mix(vec3(0.08, 0.53, 0.96), vec3(0.6, 0.4, 1.3), remapUProgress) * 4.5;
     
     // Totoro color (gray with hint of green)

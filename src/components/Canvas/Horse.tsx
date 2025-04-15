@@ -18,6 +18,8 @@ interface HorseProps {
     typeof useDataPosition
   >["horseInfoTransfroms"];
   e2InfoTransfroms: ReturnType<typeof useDataPosition>["e2InfoTransfroms"];
+  horsePath: THREE.CatmullRomCurve3;
+  horseRunStart: number;
 }
 
 const Horse = ({
@@ -29,6 +31,8 @@ const Horse = ({
   e2InfoTransfroms,
   horseInfoTransfroms,
   scrollRef,
+  horsePath,
+  horseRunStart,
 }: HorseProps) => {
   const positionArray = useMemo(() => {
     if (scene.children.length > 0) {
@@ -87,6 +91,10 @@ const Horse = ({
       horseMixer.update(delta);
     }
 
+    if (scrollRef?.current > horseRunStart) {
+      // console.log("scrollRef?.current: ", scrollRef?.current);
+    }
+
     // Copy morph target influences from the source mesh to our points
     if (pointHorseAnimRef.current && scene.children.length > 0) {
       // Use scrollRef.current to get the latest scroll value
@@ -94,9 +102,12 @@ const Horse = ({
         pointHorseAnimRef.current.material.uniforms.uProgress.value =
           scrollRef.current;
 
-        // console.log(
-        //   scrollRef.current <= 0.81 ? 0.0 : (scrollRef.current - 0.81) / 0.19
-        // );
+        const horsePathVector = horsePath.getPointAt(
+          scrollRef.current <= horseRunStart
+            ? 0.0
+            : (scrollRef.current - horseRunStart) / (1 - horseRunStart)
+        );
+        pointHorseAnimRef.current.position.copy(horsePathVector);
       }
 
       const sourceMesh = scene.children[0];

@@ -52,8 +52,8 @@ void main() {
 
   gl_PointSize = 0. * (2.0 / -mvPosition.z);
   // gl_Position = transformedPos;
-  float mappedProgress = uProgress <= 0.81 ? 0.0 : (uProgress - 0.81) / 0.19;
-  gl_Position = mix(prevTargetPos, transformedPos, min(1., mappedProgress * 1.45));
+  float mappedProgress = uProgress <= 5. * 0.125 ? 0.0 : (uProgress - 5. * 0.125) / (6. * 0.125 - 5. * 0.125);
+  gl_Position = mix(prevTargetPos, transformedPos, min(1., mappedProgress));
 
   #include <logdepthbuf_vertex>
   #include <clipping_planes_vertex>
