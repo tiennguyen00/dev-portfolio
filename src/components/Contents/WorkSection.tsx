@@ -9,6 +9,7 @@ import {
 } from "../icons";
 
 interface WorkSectionProps {
+  id: number;
   title: string;
   keywords: string[];
   highlights: string[];
@@ -81,6 +82,7 @@ const TechnologyIcon = ({ keyword }: TechnologyIconProps) => {
 };
 
 const WorkSection = ({
+  id,
   title,
   keywords,
   image,
@@ -95,12 +97,19 @@ const WorkSection = ({
       <div className="flex w-3/5 flex-col space-y-6 items-start">
         <h3 className="text-4xl font-bold text-yellow-600">{title}</h3>
         <p className="text-gray-300 text-sm/5 text-left ">{des}</p>
-        <div>
-          <img
-            src={image}
-            alt={title}
-            className="w-full h-auto rounded-lg mb-3"
-          />
+        <div className="w-full">
+          <div className="w-full h-auto aspect-[3762/2052] bg-white/80 flex justify-center items-center rounded-lg mb-3 overflow-hidden">
+            <img
+              src={image}
+              alt={title}
+              className="w-full h-full aspect-square"
+              style={{
+                width: id === 2 ? "100px" : "100%",
+                height: id === 2 ? "auto" : "100%",
+              }}
+            />
+          </div>
+
           <div className="flex items-center pointer-events-auto">
             <h3 className="text-gray-300 font-bold text-left">Techs:</h3>
             {keywords.map((keyword) => (

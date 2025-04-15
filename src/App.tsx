@@ -1,5 +1,5 @@
 import CanvasPage from "./components/Canvas";
-// import Contents from "./components/Contents";
+import Contents from "./components/Contents";
 import { useGSAP } from "@gsap/react";
 import gsap from "gsap";
 import { ScrollTrigger } from "gsap/ScrollTrigger";
@@ -45,7 +45,7 @@ function App() {
 
   return (
     <div className="w-full min-h-[1000dvh] relative scrollcontainer">
-      {/* <Contents scrollRef={scrollProgress} /> */}
+      <Contents scrollRef={scrollProgress} />
       <CanvasPage scrollRef={scrollProgress} />
     </div>
   );
