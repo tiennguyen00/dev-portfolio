@@ -22,6 +22,16 @@ interface ExperienceProps {
   pointHorseAnimRef: React.RefObject<THREE.Points>;
 }
 
+const MORPH_TOTALS = 3,
+  DELAY = 0.05;
+
+const MORPH_RANGES = {
+  TOTORO: { START: 0.2 + DELAY, END: 0.4 },
+  HAT: { START: 0.4 + DELAY, END: 0.6 },
+  E2: { START: 0.6 + DELAY, END: 0.8 },
+  HORSE: { START: 0.8 + DELAY, END: 1 },
+};
+
 const Experience = ({
   pointsRef,
   scrollRef,
@@ -34,13 +44,6 @@ const Experience = ({
   const currentParticles = useRef(0);
   const emitters = useRef<THREE.Mesh[]>([]);
   const morphTargetTexture = useRef<THREE.Texture[]>([]);
-
-  const MORPH_RANGES = {
-    TOTORO: { START: 0.21, END: 0.4 },
-    HAT: { START: 0.41, END: 0.6 },
-    E2: { START: 0.61, END: 0.8 },
-    HORSE: { START: 0.81, END: 1 },
-  };
 
   const sceneFBO = useRef<THREE.Scene>(new THREE.Scene());
   const viewArea = size / 2 + 0.01;
@@ -180,7 +183,7 @@ const Experience = ({
   // Create the birdPath tragetry
   const birdPath = new THREE.CatmullRomCurve3([
     new THREE.Vector3(0, 0, 0),
-    new THREE.Vector3(0, 0, 30),
+    new THREE.Vector3(0, 0, 20),
     new THREE.Vector3(0, viewport.height / 2 - 10, 10),
   ]);
   //===============================================
@@ -192,15 +195,16 @@ const Experience = ({
 
   useFrame((state, delta) => {
     const elapsedTime = state.clock.elapsedTime;
-    // value from 0 -> 1 ======================================
+    // For bird animation -> mapped value 0 -> TOTORO.START to 0 -> 1
     const mappedProgress = Math.min(
       1,
       scrollRef.current / MORPH_RANGES.TOTORO.START
     );
-    const currentPathVector = birdPath.getPointAt(mappedProgress);
+    const birdPathVector = birdPath.getPointAt(mappedProgress);
 
+    // we need reset the position of the birdScene
     if (birdScene) {
-      birdScene.position.copy(new THREE.Vector3()).multiplyScalar(1.5);
+      birdScene.position.copy(new THREE.Vector3());
     }
 
     // Create a unified parameter space for morphing (0-1 for entire sequence)
@@ -210,44 +214,42 @@ const Experience = ({
       morphProgress = 0;
       targetModelIndex = -1;
     } else if (scrollRef.current <= MORPH_RANGES.TOTORO.END) {
-      // In Totoro range (0-0.33 in normalized space)
       normalizedProgress =
         ((scrollRef.current - MORPH_RANGES.TOTORO.START) /
           (MORPH_RANGES.TOTORO.END - MORPH_RANGES.TOTORO.START)) *
-        0.33;
-      morphProgress = normalizedProgress * 3; // Scale to 0-1 range for this model
+        (1 / MORPH_TOTALS);
+      morphProgress = normalizedProgress * MORPH_TOTALS;
       targetModelIndex = 0;
     } else if (scrollRef.current < MORPH_RANGES.HAT.START) {
       // Between Totoro and Hat (maintain full Totoro form)
-      normalizedProgress = 0.33;
+      normalizedProgress = 1 / MORPH_TOTALS;
       morphProgress = 1.0;
       targetModelIndex = 0;
     } else if (scrollRef.current <= MORPH_RANGES.HAT.END) {
-      // In Hat range (0.33-0.66 in normalized space)
       normalizedProgress =
-        0.33 +
+        1 / MORPH_TOTALS +
         ((scrollRef.current - MORPH_RANGES.HAT.START) /
           (MORPH_RANGES.HAT.END - MORPH_RANGES.HAT.START)) *
-          0.33;
-      morphProgress = (normalizedProgress - 0.33) * 3; // Scale to 0-1 range for this model
+          (1 / MORPH_TOTALS);
+      morphProgress = (normalizedProgress - 1 / MORPH_TOTALS) * MORPH_TOTALS; // Scale to 0-1 range for this model
       targetModelIndex = 1;
     } else if (scrollRef.current < MORPH_RANGES.E2.START) {
       // Between Hat and Horse (maintain full Hat form)
-      normalizedProgress = 0.66;
+      normalizedProgress = 2 / MORPH_TOTALS;
       morphProgress = 1.0;
       targetModelIndex = 1;
     } else if (scrollRef.current <= MORPH_RANGES.E2.END) {
       // In Horse range (0.66-1.0 in normalized space)
       normalizedProgress =
-        0.66 +
+        2 / MORPH_TOTALS +
         ((scrollRef.current - MORPH_RANGES.E2.START) /
           (MORPH_RANGES.E2.END - MORPH_RANGES.E2.START)) *
-          0.34;
-      morphProgress = (normalizedProgress - 0.66) * (1 / 0.34); // Scale to 0-1 range for this model
+          (1 / MORPH_TOTALS);
+      morphProgress = (normalizedProgress - 2 / MORPH_TOTALS) * MORPH_TOTALS; // Scale to 0-1 range for this model
       targetModelIndex = 2;
     } else {
       // After all morphing (maintain full Horse form)
-      normalizedProgress = 1.0;
+      normalizedProgress = 3 / MORPH_TOTALS;
       morphProgress = 1.0;
       targetModelIndex = 2;
     }
@@ -282,10 +284,7 @@ const Experience = ({
     simMaterial.current.uniforms.uMorphProgress.value = morphProgress;
 
     // Add normalized progress uniform if it exists
-    if (simMaterial.current.uniforms.uNormalizedProgress) {
-      simMaterial.current.uniforms.uNormalizedProgress.value =
-        normalizedProgress;
-    }
+    simMaterial.current.uniforms.uNormalizedProgress.value = normalizedProgress;
 
     // Set the model index for floating animation
     if (simMaterial.current.uniforms.uModelIndex) {
@@ -371,7 +370,7 @@ const Experience = ({
         if (flip) v1.current.x *= -1;
         simMaterial.current.uniforms.uSource.value = v1.current;
         simMaterial.current.uniforms.uSource.value =
-          simMaterial.current.uniforms.uSource.value.add(currentPathVector);
+          simMaterial.current.uniforms.uSource.value.add(birdPathVector);
         state.gl.setRenderTarget(renderTarget);
         state.gl.render(sceneFBO.current, cameraFBO.current);
 
@@ -411,12 +410,10 @@ const Experience = ({
     simMaterial.current.uniforms.uCurrentPosition.value = renderTarget1.texture;
     simMaterial.current.uniforms.uTime.value = elapsedTime;
 
-    // Update the birdAnimations
     if (mixer) {
       mixer.update(delta);
     }
 
-    // Always update the horse mixer to keep its animation going
     if (horseMixer) {
       horseMixer.update(delta);
     }
@@ -434,8 +431,8 @@ const Experience = ({
       birdScene.visible = true;
     }
 
-    // Rotate the model based on mouse position
     if (birdScene) {
+      // Rotate the model based on mouse positi
       const targetRotationY = mouse.x * 0.654;
       const targetRotationX = -mouse.y * 0.654;
 
@@ -443,19 +440,18 @@ const Experience = ({
       birdScene.rotation.y += (targetRotationY - birdScene.rotation.y) * 0.1;
       birdScene.rotation.x += (targetRotationX - birdScene.rotation.x) * 0.1;
 
-      // Scale based on distance from origin
       const distanceFromCenter = Math.sqrt(
         mouse.x * mouse.x + mouse.y * mouse.y
       );
       // Calculate target scale (1 at origin, smaller as distance increases)
-      const targetScale = 1 - distanceFromCenter * 0.25; // Adjust the 0.25 to control scale reduction rate
+      const targetScale = 1 - distanceFromCenter * 0.25;
 
       // Apply smooth scaling with lerp
       birdScene.scale.x += (targetScale - birdScene.scale.x) * 0.1;
       birdScene.scale.y += (targetScale - birdScene.scale.y) * 0.1;
       birdScene.scale.z += (targetScale - birdScene.scale.z) * 0.1;
 
-      birdScene.position.copy(currentPathVector);
+      birdScene.position.copy(birdPathVector);
     }
   });
 

@@ -8,9 +8,7 @@ import * as THREE from "three";
 
 const SimMaterial = shaderMaterial(
   {
-    time: new THREE.Uniform(0),
     uMouse: new THREE.Uniform(new THREE.Vector3(0, 0, 0)),
-    uProgress: new THREE.Uniform(0),
     uTime: new THREE.Uniform(0),
     uSource: new THREE.Uniform(new THREE.Vector3(0, 0, 0)),
     uRenderMode: new THREE.Uniform(0),

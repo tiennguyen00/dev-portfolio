@@ -10,7 +10,7 @@ void main() {
     // Only discard particles with low life when NOT morphing
     if(vLife < 0.88 && uMorphProgress <= 0.0) discard;
     
-   if(uProgress > 0.81) {
+   if(uProgress > 0.8) {
         discard;
     }
     
