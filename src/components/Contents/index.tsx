@@ -7,66 +7,9 @@ import { projects } from "../../constants/projects";
 import WorkSection from "./WorkSection";
 import ContactSection from "./ContactSection";
 
-// Animation constants
-const INITIAL_OPACITY = 0;
-const FULL_OPACITY = 1;
-const FADE_DURATION = 0.01;
-
-// Define the timing interface
-interface SectionTiming {
-  start: number; // Point in scroll progress (0-1) where section begins to appear
-  end: number; // Point in scroll progress (0-1) where section begins to disappear
-}
-
-/**
- * Section timing configuration
- *
- * Each section has:
- * - start: When to begin fading in (0-1 scale)
- * - end: When to begin fading out (0-1 scale)
- *
- * Note: Overlapping ranges (like project-4 and contact) create cross-fade effects
- */
-const sectionTimings: Record<string, SectionTiming> = {
-  hero: {
-    start: 0,
-    end: 0.17,
-  },
-  about: {
-    start: 0.17,
-    end: 0.27,
-  },
-  "project-1": {
-    start: 0.27,
-    end: 0.39,
-  },
-  "project-2": {
-    start: 0.39,
-    end: 0.48,
-  },
-  "project-3": {
-    start: 0.48,
-    end: 0.58,
-  },
-  "project-4": {
-    start: 0.58,
-    end: 0.77,
-  },
-  contact: {
-    start: 0.77,
-    end: 0.999, // Use 0.999 instead of 1.0 to avoid GSAP endpoint behavior
-  },
-};
-
-/**
- * Main content component with scrolling animations
- * Uses the scrollRef from App.tsx (which is updated by ScrollTrigger)
- * to control the visibility of sections based on scroll position
- */
 const Contents = ({ scrollRef }: { scrollRef: React.RefObject<number> }) => {
   const tl = useRef<gsap.core.Timeline | null>(null);
 
-  // Initialize GSAP animations
   useGSAP(() => {
     // Map section elements to their timing configuration
     const sections = [
@@ -82,53 +25,112 @@ const Contents = ({ scrollRef }: { scrollRef: React.RefObject<number> }) => {
     // Initialize all sections to invisible
     gsap.set(
       sections.map((s) => s.selector),
-      { opacity: INITIAL_OPACITY }
+      { opacity: 0 }
     );
 
     // Make first section visible initially
-    gsap.set(sections[0].selector, { opacity: FULL_OPACITY });
+    gsap.set(sections[0].selector, { opacity: 1 });
 
-    // Create master timeline with clear start/end points
-    tl.current = gsap.timeline({ paused: true });
-
-    // Add each section's animations to the timeline in sequence
-    sections.forEach((section, index) => {
-      const timing = sectionTimings[section.timingKey];
-      if (!timing) return;
-
-      const { start, end } = timing;
-
-      // For all sections except the first one
-      if (index > 0) {
-        // Clear 'to' animation for fade in - will use absolute values
-        tl.current?.to(
-          section.selector,
-          {
-            opacity: FULL_OPACITY,
-            duration: FADE_DURATION,
-            ease: "power1.in",
-            immediateRender: false,
-          },
-          start
-        );
-      }
-
-      // All sections need proper fade out, even the last one
-      // This ensures things disappear at the right time
-      if (index < sections.length - 1) {
-        // Clear 'to' animation for fade out - will use absolute values
-        tl.current?.to(
-          section.selector,
-          {
-            opacity: INITIAL_OPACITY,
-            duration: FADE_DURATION,
-            ease: "power1.out",
-            immediateRender: false,
-          },
-          end - FADE_DURATION
-        );
-      }
+    tl.current = gsap.timeline({
+      paused: true,
     });
+    tl.current
+      .to(sections[0].selector, {
+        opacity: 0,
+        duration: 1.5,
+        ease: "power4.in",
+      })
+      // about section
+      .to(
+        sections[1].selector,
+        {
+          opacity: 1,
+          duration: 0.1,
+          ease: "power2.out",
+        },
+        "<95%"
+      )
+      .to(
+        sections[1].selector,
+        {
+          opacity: 0,
+          ease: "power4.in",
+        },
+        ">"
+      )
+      // ghibli landing
+      .to(
+        sections[2].selector,
+        {
+          opacity: 1,
+        },
+        "<85%"
+      )
+      .to(
+        sections[2].selector,
+        {
+          opacity: 0,
+        },
+        ">"
+      )
+      // wolvesville ai
+      .to(
+        sections[3].selector,
+        {
+          opacity: 1,
+        },
+        "<75%"
+      )
+      .to(
+        sections[3].selector,
+        {
+          opacity: 0,
+          duration: 0.1,
+          ease: "power2.in",
+        },
+        ">"
+      )
+      // ollama assistant
+      .to(
+        sections[4].selector,
+        {
+          opacity: 1,
+          ease: "power4.out",
+        },
+        "<75%"
+      )
+      .to(
+        sections[4].selector,
+        {
+          opacity: 0,
+          ease: "power2.in",
+        },
+        ">"
+      )
+      // gpgpu particles
+      .to(
+        sections[5].selector,
+        {
+          opacity: 1,
+          ease: "power4.out",
+        },
+        "<75%"
+      )
+      .to(
+        sections[5].selector,
+        {
+          opacity: 0,
+          ease: "power2.in",
+        },
+        ">"
+      )
+      .to(
+        sections[6].selector,
+        {
+          opacity: 1,
+        },
+        "<75%"
+      );
   }, []);
 
   // Connect timeline to the scroll progress from App.tsx's ScrollTrigger
@@ -139,11 +141,7 @@ const Contents = ({ scrollRef }: { scrollRef: React.RefObject<number> }) => {
         scrollRef.current !== null &&
         scrollRef.current !== undefined
       ) {
-        // Precision to 2 decimal places and cap at 0.999
-        const progress = Math.min(0.999, Number(scrollRef.current.toFixed(2)));
-
-        // Set timeline progress based on current scroll position
-        tl.current.progress(progress);
+        tl.current.progress(Number(scrollRef.current.toFixed(2)));
       }
       rafId = requestAnimationFrame(updateTimeline);
     };
