@@ -3,13 +3,14 @@ import Contents from "./components/Contents";
 import { useGSAP } from "@gsap/react";
 import gsap from "gsap";
 import { ScrollTrigger } from "gsap/ScrollTrigger";
-import { useRef, useEffect } from "react";
+import { useRef, useEffect, useState } from "react";
 import { lerp } from "three/src/math/MathUtils.js";
 gsap.registerPlugin(ScrollTrigger);
 
 function App() {
   const targetScrollProgress = useRef(0);
   const scrollProgress = useRef(0);
+  const [loadingAssets, setLoadingAssets] = useState(false);
 
   // todo: research about the scrollPorxy in gsap can make it more efficient
   useEffect(() => {
@@ -45,8 +46,11 @@ function App() {
 
   return (
     <div className="w-full min-h-[1000dvh] relative scrollcontainer">
-      <Contents scrollRef={scrollProgress} />
-      <CanvasPage scrollRef={scrollProgress} />
+      {loadingAssets && <Contents scrollRef={scrollProgress} />}
+      <CanvasPage
+        scrollRef={scrollProgress}
+        setLoadingAssets={setLoadingAssets}
+      />
     </div>
   );
 }

@@ -1,5 +1,15 @@
 import { useAnimations, useGLTF } from "@react-three/drei";
 
+const MODEL_PATHS = [
+  "/models/totoro_1.glb",
+  "/models/horses.glb",
+  "/models/witch_hat.glb",
+  "/models/e2.glb",
+  "/models/brid.glb",
+];
+
+MODEL_PATHS.forEach((path) => useGLTF.preload(path));
+
 const useModels = () => {
   const [
     { scene: totoroScene },
@@ -7,13 +17,7 @@ const useModels = () => {
     { scene: hatScene },
     { scene: e2Scene },
     { scene: birdScene, animations: birdAnimations },
-  ] = useGLTF([
-    "/models/totoro_1.glb",
-    "/models/horses.glb",
-    "/models/witch_hat.glb",
-    "/models/e2.glb",
-    "/models/brid.glb",
-  ]);
+  ] = useGLTF(MODEL_PATHS);
 
   const { clips, mixer } = useAnimations(birdAnimations, birdScene);
   const { clips: horseClips, mixer: horseMixer } = useAnimations(
