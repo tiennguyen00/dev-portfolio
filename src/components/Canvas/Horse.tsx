@@ -86,13 +86,12 @@ const Horse = ({
     setupHorseAnimation();
   }, [positionArray, pointHorseAnimRef]);
 
+  // Add a bit delay to start horse transition
+  const remappedHorseRunStart = horseRunStart + 0.05;
+
   useFrame((_state, delta) => {
     if (horseMixer) {
       horseMixer.update(delta);
-    }
-
-    if (scrollRef?.current > horseRunStart) {
-      // console.log("scrollRef?.current: ", scrollRef?.current);
     }
 
     // Copy morph target influences from the source mesh to our points
@@ -103,9 +102,10 @@ const Horse = ({
           scrollRef.current;
 
         const horsePathVector = horsePath.getPointAt(
-          scrollRef.current <= horseRunStart
+          scrollRef.current <= remappedHorseRunStart
             ? 0.0
-            : (scrollRef.current - horseRunStart) / (1 - horseRunStart)
+            : (scrollRef.current - remappedHorseRunStart) /
+                (1 - remappedHorseRunStart)
         );
         pointHorseAnimRef.current.position.copy(horsePathVector);
       }
