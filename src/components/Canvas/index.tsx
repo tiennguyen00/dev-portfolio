@@ -20,6 +20,7 @@ const CanvasPage = ({ scrollRef }: { scrollRef: React.RefObject<number> }) => {
         depth: false,
         powerPreference: "high-performance",
       }}
+      className="hidden md:block"
     >
       <color attach="background" args={["#222"]} />
       {/* <StatsGl className="top-0 left-0 fixed" trackGPU /> */}

@@ -94,7 +94,7 @@ const WorkSection = ({
       <h3 className="text-4xl underline font-bold mb-4 absolute left-0 top-6">
         MY WORKS
       </h3>
-      <div className="flex w-3/5 flex-col space-y-6 items-start">
+      <div className="flex w-full md:w-3/5 flex-col space-y-6 items-start">
         <h3 className="text-4xl font-bold text-yellow-600">{title}</h3>
         <p className="text-gray-300 text-sm/5 text-left ">{des}</p>
         <div className="w-full">
