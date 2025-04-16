@@ -1,11 +1,17 @@
 import {
   BlenderIcon,
+  CursorIcon,
+  ExpressJsIcon,
   GSAPIcon,
   NextJsIcon,
+  PostgreSQLIcon,
+  ReactJsIcon,
   ShadcnIcon,
+  SocketIoIcon,
   TailwindIcon,
   ThreejsIcon,
   TypeScriptIcon,
+  ZustandIcon,
 } from "../icons";
 
 interface WorkSectionProps {
@@ -58,6 +64,30 @@ const TECH_ICON_CONFIG: Record<string, TechIconConfig> = {
   },
   Blender: {
     icon: BlenderIcon,
+    containerClass: "bg-white p-[4px] w-8 h-8 rounded-full",
+  },
+  Cursor: {
+    icon: CursorIcon,
+    containerClass: "bg-white p-[4px] w-8 h-8 rounded-full",
+  },
+  Reactjs: {
+    icon: ReactJsIcon,
+    containerClass: "bg-white p-[4px] w-8 h-8 rounded-full",
+  },
+  Zustand: {
+    icon: ZustandIcon,
+    containerClass: "bg-white p-[4px] w-8 h-8 rounded-full",
+  },
+  "Socket.io": {
+    icon: SocketIoIcon,
+    containerClass: "bg-white p-[4px] w-8 h-8 rounded-full",
+  },
+  Expressjs: {
+    icon: ExpressJsIcon,
+    containerClass: "bg-white p-[4px] w-8 h-8 rounded-full",
+  },
+  PostgreSQL: {
+    icon: PostgreSQLIcon,
     containerClass: "bg-white p-[4px] w-8 h-8 rounded-full",
   },
 };

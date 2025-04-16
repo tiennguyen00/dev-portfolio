@@ -12,7 +12,6 @@ export function Progress({
     if (!active) {
       setLoadingAssets(true);
       const container = gsap.utils.toArray(".container") as HTMLElement[];
-      console.log(container);
       gsap.to(container[0], {
         duration: 0.5,
         opacity: 0,

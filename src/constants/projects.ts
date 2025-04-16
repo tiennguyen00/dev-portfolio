@@ -25,7 +25,16 @@ export const projects = [
     id: 2,
     title: "Wolvesville AI (wip)",
     des: "A showcase project designed to highlight the work of a renowned animation studio, focusing on immersive animations, smooth transitions, responsive design, and interactive elements.",
-    keywords: ["Next.js", "Tailwind CSS", "TypeScript", "GSAP", "Threejs"],
+    keywords: [
+      "Cursor",
+      "Reactjs",
+      "Tailwind CSS",
+      "TypeScript",
+      "Zustand",
+      "Socket.io",
+      "Expressjs",
+      "PostgreSQL",
+    ],
     highlights: [
       "Custom-built creative design",
       "Smooth section transitions",
