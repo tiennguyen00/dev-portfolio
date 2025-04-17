@@ -96,7 +96,7 @@ const useDataPosition = () => {
   };
   const e2InfoTransfroms = {
     rotation: [0, -Math.PI / 4, 0],
-    translation: [0, 5, 0],
+    translation: [0, 0, 0],
     scale: 40,
   };
 
@@ -109,9 +109,7 @@ const useDataPosition = () => {
       ],
       translation: [
         horseInfoTransfroms.translation[0] + e2InfoTransfroms.translation[0],
-        horseInfoTransfroms.translation[1] +
-          e2InfoTransfroms.translation[1] +
-          5,
+        0,
         horseInfoTransfroms.translation[2] + e2InfoTransfroms.translation[2],
       ],
       scale: e2InfoTransfroms.scale,

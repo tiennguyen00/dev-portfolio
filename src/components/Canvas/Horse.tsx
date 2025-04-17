@@ -146,7 +146,7 @@ const Horse = ({
       e2InfoTransfroms.scale
     );
     e2Scene.rotation.y = e2InfoTransfroms.rotation[1];
-    e2Scene.position.y += e2InfoTransfroms.translation[1];
+    e2Scene.position.y += 5;
 
     // Update world matrix to include transformations
     e2Scene.updateMatrixWorld(true);
