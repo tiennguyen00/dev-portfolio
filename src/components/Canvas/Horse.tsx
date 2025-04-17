@@ -176,15 +176,13 @@ const Horse = ({
   }, [e2Scene, pointHorseAnimRef]);
 
   return (
-    <>
-      <points
-        ref={pointHorseAnimRef}
-        rotation={horseInfoTransfroms.rotation}
-        position={horseInfoTransfroms.translation}
-      >
-        <horseMaterial transparent depthWrite={false} />
-      </points>
-    </>
+    <points
+      ref={pointHorseAnimRef}
+      rotation={horseInfoTransfroms.rotation}
+      position={horseInfoTransfroms.translation}
+    >
+      <horseMaterial transparent depthWrite={false} />
+    </points>
   );
 };
 

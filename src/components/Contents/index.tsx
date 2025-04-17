@@ -25,11 +25,14 @@ const Contents = ({ scrollRef }: { scrollRef: React.RefObject<number> }) => {
     // Initialize all sections to invisible
     gsap.set(
       sections.map((s) => s.selector),
-      { opacity: 0 }
+      { opacity: 0, display: "none" }
     );
 
     // Make first section visible initially
-    gsap.set(sections[0].selector, { opacity: 1 });
+    gsap.set(sections[0].selector, {
+      opacity: 1,
+      display: "flex",
+    });
 
     tl.current = gsap.timeline({
       paused: true,
@@ -37,6 +40,7 @@ const Contents = ({ scrollRef }: { scrollRef: React.RefObject<number> }) => {
     tl.current
       .to(sections[0].selector, {
         opacity: 0,
+        display: "none",
         duration: 1.5,
         ease: "power4.in",
       })
@@ -45,6 +49,7 @@ const Contents = ({ scrollRef }: { scrollRef: React.RefObject<number> }) => {
         sections[1].selector,
         {
           opacity: 1,
+          display: "flex",
           duration: 0.1,
           ease: "power2.out",
         },
@@ -54,6 +59,7 @@ const Contents = ({ scrollRef }: { scrollRef: React.RefObject<number> }) => {
         sections[1].selector,
         {
           opacity: 0,
+          display: "none",
           ease: "power4.in",
         },
         ">"
@@ -63,6 +69,7 @@ const Contents = ({ scrollRef }: { scrollRef: React.RefObject<number> }) => {
         sections[2].selector,
         {
           opacity: 1,
+          display: "flex",
         },
         "<85%"
       )
@@ -70,6 +77,7 @@ const Contents = ({ scrollRef }: { scrollRef: React.RefObject<number> }) => {
         sections[2].selector,
         {
           opacity: 0,
+          display: "none",
         },
         ">"
       )
@@ -78,6 +86,7 @@ const Contents = ({ scrollRef }: { scrollRef: React.RefObject<number> }) => {
         sections[3].selector,
         {
           opacity: 1,
+          display: "flex",
         },
         "<75%"
       )
@@ -85,6 +94,7 @@ const Contents = ({ scrollRef }: { scrollRef: React.RefObject<number> }) => {
         sections[3].selector,
         {
           opacity: 0,
+          display: "none",
           duration: 0.1,
           ease: "power2.in",
         },
@@ -95,6 +105,7 @@ const Contents = ({ scrollRef }: { scrollRef: React.RefObject<number> }) => {
         sections[4].selector,
         {
           opacity: 1,
+          display: "flex",
           ease: "power4.out",
         },
         "<75%"
@@ -103,6 +114,7 @@ const Contents = ({ scrollRef }: { scrollRef: React.RefObject<number> }) => {
         sections[4].selector,
         {
           opacity: 0,
+          display: "none",
           ease: "power2.in",
         },
         ">"
@@ -112,6 +124,7 @@ const Contents = ({ scrollRef }: { scrollRef: React.RefObject<number> }) => {
         sections[5].selector,
         {
           opacity: 1,
+          display: "flex",
           ease: "power4.out",
         },
         "<75%"
@@ -120,6 +133,7 @@ const Contents = ({ scrollRef }: { scrollRef: React.RefObject<number> }) => {
         sections[5].selector,
         {
           opacity: 0,
+          display: "none",
           ease: "power2.in",
         },
         ">"
@@ -128,6 +142,7 @@ const Contents = ({ scrollRef }: { scrollRef: React.RefObject<number> }) => {
         sections[6].selector,
         {
           opacity: 1,
+          display: "flex",
         },
         "<75%"
       );
@@ -154,7 +169,7 @@ const Contents = ({ scrollRef }: { scrollRef: React.RefObject<number> }) => {
   }, [scrollRef]);
 
   return (
-    <div className="w-full flex flex-col items-center pointer-events-none">
+    <div className="w-full flex flex-col items-center">
       <section className="text-center z-[9999] fixed max-w-2xl px-6 w-full h-[100dvh] flex flex-col justify-center items-center herosection">
         <HeroSection />
       </section>

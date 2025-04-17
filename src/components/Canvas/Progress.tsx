@@ -16,7 +16,6 @@ export function Progress({
         duration: 0.5,
         opacity: 0,
         onComplete: () => {
-          console.log("complete");
           container[0].style.display = "none";
         },
       });

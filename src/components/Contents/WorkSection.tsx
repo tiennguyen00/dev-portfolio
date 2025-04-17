@@ -13,6 +13,7 @@ import {
   TypeScriptIcon,
   ZustandIcon,
 } from "../icons";
+import { ToolTip } from "../shared";
 
 interface WorkSectionProps {
   id: number;
@@ -70,7 +71,7 @@ const TECH_ICON_CONFIG: Record<string, TechIconConfig> = {
     icon: CursorIcon,
     containerClass: "bg-white p-[4px] w-8 h-8 rounded-full",
   },
-  Reactjs: {
+  ReactJs: {
     icon: ReactJsIcon,
     containerClass: "bg-white p-[4px] w-8 h-8 rounded-full",
   },
@@ -78,7 +79,7 @@ const TECH_ICON_CONFIG: Record<string, TechIconConfig> = {
     icon: ZustandIcon,
     containerClass: "bg-white p-[4px] w-8 h-8 rounded-full",
   },
-  "Socket.io": {
+  SocketIO: {
     icon: SocketIoIcon,
     containerClass: "bg-white p-[4px] w-8 h-8 rounded-full",
   },
@@ -102,12 +103,13 @@ const TechnologyIcon = ({ keyword }: TechnologyIconProps) => {
   const IconComponent = config.icon;
 
   return (
-    <div className={`${config.containerClass} cursor-pointer`}>
-      <IconComponent className={config.iconClass || "w-full h-full"} />
-      <span className="absolute bottom-full left-1/2 transform -translate-x-1/2 mb-2 px-2 py-1 bg-gray-800 text-white text-xs rounded opacity-0 group-hover:opacity-100 transition-opacity pointer-events-none border border-gray-600">
-        {keyword}
-      </span>
-    </div>
+    <ToolTip content={keyword}>
+      <div
+        className={`${config.containerClass} cursor-pointer overflow-hidden transform-auto`}
+      >
+        <IconComponent className={config.iconClass || "w-full h-full"} />
+      </div>
+    </ToolTip>
   );
 };
 
@@ -145,7 +147,7 @@ const WorkSection = ({
             {keywords.map((keyword) => (
               <div
                 key={keyword}
-                className="text-gray-300 px-2 py-1 text-left relative group"
+                className="text-gray-300 px-2 py-1 text-left relative"
               >
                 <TechnologyIcon keyword={keyword} />
               </div>
