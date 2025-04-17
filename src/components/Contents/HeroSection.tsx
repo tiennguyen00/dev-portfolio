@@ -1,6 +1,7 @@
 import { useGSAP } from "@gsap/react";
 import { useRef, useState, useEffect } from "react";
 import gsap from "gsap";
+import { ArrowUpIcon } from "../icons";
 gsap.registerPlugin(useGSAP);
 
 const HeroSection = () => {
@@ -81,7 +82,12 @@ const HeroSection = () => {
           <span className="animate-pulse">|</span>
         </h2>
       </div>
-      <div className="w-full h-[35vh]" />
+      <div className="w-full hidden md:block h-[35vh]" />
+      <div className="w-full animate-bounce space-y-2 flex flex-col justify-center items-center md:hidden h-[35vh]">
+        <div className="p-3 border border-yellow-600 rounded-full">
+          <ArrowUpIcon className="w-6 h-6 rotate-180 fill-white" />
+        </div>
+      </div>
 
       <p className="text-lg text-whiteAlpha-700 max-w-3xl w-full font-light">
         Passionate developer specializing in frontend technologies. Whether you

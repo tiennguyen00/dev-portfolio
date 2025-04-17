@@ -27,3 +27,4 @@ export * from "./chatgpt";
 export * from "./firebase";
 export * from "./pixijs";
 export * from "./openai";
+export * from "./arrowup";

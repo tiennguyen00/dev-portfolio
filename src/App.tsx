@@ -6,6 +6,7 @@ import { ScrollTrigger } from "gsap/ScrollTrigger";
 import { useRef, useEffect, useState } from "react";
 import { useMediaQuery } from "react-responsive";
 import { lerp } from "three/src/math/MathUtils.js";
+import MobileUI from "./components/MobileUI";
 gsap.registerPlugin(ScrollTrigger);
 
 function App() {
@@ -47,11 +48,7 @@ function App() {
   }, []);
 
   if (isMobile) {
-    return (
-      <div className="w-full min-h-[1000dvh] relative scrollcontainer">
-        <Contents scrollRef={scrollProgress} />
-      </div>
-    );
+    return <MobileUI scrollProgress={scrollProgress} />;
   }
 
   return (
