@@ -9,7 +9,7 @@ export function Progress({
   const { active, progress, errors } = useProgress();
 
   useGSAP(() => {
-    if (!active) {
+    if (!active && progress === 100) {
       setLoadingAssets(true);
       const container = gsap.utils.toArray(".container") as HTMLElement[];
       gsap.to(container[0], {

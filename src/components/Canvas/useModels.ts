@@ -1,4 +1,6 @@
 import { useAnimations, useGLTF } from "@react-three/drei";
+import { useEffect } from "react";
+import { useMediaQuery } from "react-responsive";
 
 const MODEL_PATHS = [
   "/models/totoro_1.glb",
@@ -8,9 +10,16 @@ const MODEL_PATHS = [
   "/models/brid.glb",
 ];
 
-MODEL_PATHS.forEach((path) => useGLTF.preload(path));
-
 const useModels = () => {
+  const isMobile = useMediaQuery({ query: "(max-width: 560px)" });
+
+  useEffect(() => {
+    console.log(isMobile);
+    if (!isMobile) {
+      MODEL_PATHS.forEach((path) => useGLTF.preload(path));
+    }
+  }, [isMobile]);
+
   const [
     { scene: totoroScene },
     { scene: horseScene, animations: horseAnimations },

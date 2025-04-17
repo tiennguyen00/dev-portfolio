@@ -92,10 +92,10 @@ export const FirebaseIcon = (props: React.SVGProps<SVGSVGElement>) => {
           fill="#FFC24A"
         ></path>
         <g>
-          <use fill="#FFA712" fill-rule="evenodd" xlinkHref="#path-1"></use>
+          <use fill="#FFA712" fillRule="evenodd" xlinkHref="#path-1"></use>
           <use
             fill="#000000"
-            fill-opacity="1"
+            fillOpacity="1"
             filter="url(#filter-2)"
             xlinkHref="#path-1"
           ></use>
@@ -105,10 +105,10 @@ export const FirebaseIcon = (props: React.SVGProps<SVGSVGElement>) => {
           fill="#F4BD62"
         ></path>
         <g>
-          <use fill="#FFA50E" fill-rule="evenodd" xlinkHref="#path-3"></use>
+          <use fill="#FFA50E" fillRule="evenodd" xlinkHref="#path-3"></use>
           <use
             fill="#000000"
-            fill-opacity="1"
+            fillOpacity="1"
             filter="url(#filter-4)"
             xlinkHref="#path-3"
           ></use>

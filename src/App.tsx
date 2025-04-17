@@ -4,6 +4,7 @@ import { useGSAP } from "@gsap/react";
 import gsap from "gsap";
 import { ScrollTrigger } from "gsap/ScrollTrigger";
 import { useRef, useEffect, useState } from "react";
+import { useMediaQuery } from "react-responsive";
 import { lerp } from "three/src/math/MathUtils.js";
 gsap.registerPlugin(ScrollTrigger);
 
@@ -11,6 +12,7 @@ function App() {
   const targetScrollProgress = useRef(0);
   const scrollProgress = useRef(0);
   const [loadingAssets, setLoadingAssets] = useState(false);
+  const isMobile = useMediaQuery({ query: "(max-width: 560px)" });
 
   // todo: research about the scrollPorxy in gsap can make it more efficient
   useEffect(() => {
@@ -43,6 +45,14 @@ function App() {
       },
     });
   }, []);
+
+  if (isMobile) {
+    return (
+      <div className="w-full min-h-[1000dvh] relative scrollcontainer">
+        <Contents scrollRef={scrollProgress} />
+      </div>
+    );
+  }
 
   return (
     <div className="w-full min-h-[1000dvh] relative scrollcontainer">
