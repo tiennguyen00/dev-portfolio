@@ -146,7 +146,6 @@ const Horse = ({
       e2InfoTransfroms.scale
     );
     e2Scene.rotation.y = e2InfoTransfroms.rotation[1];
-    e2Scene.position.y += 5;
 
     // Update world matrix to include transformations
     e2Scene.updateMatrixWorld(true);
@@ -165,7 +164,8 @@ const Horse = ({
 
       const baseIndex = i * 3;
       aE2Geometry[baseIndex] = tempVector.x;
-      aE2Geometry[baseIndex + 1] = tempVector.y;
+      // Add custom +10 for moving the e2 up to match with prev model
+      aE2Geometry[baseIndex + 1] = tempVector.y + 10;
       aE2Geometry[baseIndex + 2] = tempVector.z;
     }
 

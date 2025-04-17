@@ -48,7 +48,7 @@ void main() {
   #endif
 
   vec4 prevTargetPos = projectionMatrix * modelViewMatrix * vec4( aE2Geometry, 1.0 );
-  vec4 transformedPos = projectionMatrix * modelViewMatrix  * vec4( transformed.xyz * 0.1, 1.0 );;
+  vec4 transformedPos = projectionMatrix * modelViewMatrix  * vec4( transformed.xyz * 0.1, 1.0 );
 
   gl_PointSize = 0. * (2.0 / -mvPosition.z);
   // gl_Position = transformedPos;
