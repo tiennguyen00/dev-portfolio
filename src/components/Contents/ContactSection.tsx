@@ -17,13 +17,11 @@ const ContactSection = () => {
 
   return (
     <div className="flex flex-col items-center justify-center w-full h-[100vh] relative py-8">
-      {/* Title with colorful text shadow like in the reference */}
-      <h1 className="contact-title text-4xl md:text-6xl underline font-extrabold mb-8 md:mb-16 text-white/85 tracking-wider">
+      <h1 className="contact-title text-2xl md:text-4xl underline font-extrabold mb-8 md:mb-16 text-white/85 tracking-wider">
         CONTACTS
       </h1>
 
-      {/* Contact items in colorful circular layout */}
-      <div className="flex pointer-events-auto flex-wrap justify-center gap-8 mb-16 max-w-4xl">
+      <div className="flex pointer-events-auto flex-col md:flex-row justify-center gap-8 mb-16 max-w-4xl">
         {contactItems.map((item, index) => (
           <a
             key={index}
@@ -58,7 +56,7 @@ const ContactSection = () => {
           backdropFilter: "blur(5px)",
         }}
       >
-        <p className="text-xl text-yellow-100">
+        <p className="text-md md:text-xl text-yellow-100">
           Thanks for visiting my portfolio! I'm currently open to new
           opportunities and collaborations. Feel free to reach out through any
           of the contact methods above.

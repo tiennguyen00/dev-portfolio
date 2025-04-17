@@ -24,13 +24,13 @@ export const projects = [
   {
     id: 2,
     title: "Wolvesville AI (wip)",
-    des: "A showcase project designed to highlight the work of a renowned animation studio, focusing on immersive animations, smooth transitions, responsive design, and interactive elements.",
+    des: "A real-time social deduction game where players secretly become villagers or werewolves. Through strategic discussion, voting, and unique abilities, villagers must identify the werewolves before being outnumbered, while werewolves attempt to remain hidden and eliminate the village.",
     keywords: [
       "Cursor",
       "ReactJs",
       "Tailwind CSS",
       "TypeScript",
-      "Zustan ",
+      "Zustand",
       "SocketIO",
       "Expressjs",
       "PostgreSQL",
@@ -48,8 +48,8 @@ export const projects = [
   {
     id: 3,
     title: "Ollama assistant",
-    des: "A showcase project designed to highlight the work of a renowned animation studio, focusing on immersive animations, smooth transitions, responsive design, and interactive elements.",
-    keywords: ["Next.js", "Tailwind CSS", "TypeScript", "GSAP", "Threejs"],
+    des: "A simple assistant that uses LLM to answer questions and express emotions using OpenAI's GPT-4o, TTS model api and PixiJS for 3D character animation.",
+    keywords: ["Next.js", "PixiJS", "OpenAI", "Firebase", "TypeScript"],
     highlights: [
       "Custom-built creative design",
       "Smooth section transitions",
@@ -57,8 +57,8 @@ export const projects = [
       "Fully responsive design",
       "Optimized performance",
     ],
-    image: "/images/particles-morphing.webp",
-    demo: "https://github.com/tiennguyen00/wolvesville-ai",
+    image: "/images/assistant.webp",
+    demo: "https://ollama-assistant.vercel.app/",
   },
   {
     id: 4,

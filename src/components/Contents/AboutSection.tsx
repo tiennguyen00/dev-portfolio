@@ -6,7 +6,7 @@ const AboutSection = () => {
 
   return (
     <div className="flex flex-col items-center max-w-7xl mx-auto">
-      <h3 className="hidden md:block text-4xl underline font-bold mb-4">
+      <h3 className="hidden md:block text-2xl md:text-4xl underline font-bold mb-4">
         ABOUT ME
       </h3>
       <div className="w-full grid grid-cols-1 md:grid-cols-4 gap-3">

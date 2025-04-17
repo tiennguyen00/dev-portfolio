@@ -2,8 +2,11 @@ import {
   BlenderIcon,
   CursorIcon,
   ExpressJsIcon,
+  FirebaseIcon,
   GSAPIcon,
   NextJsIcon,
+  OpenaiIcon,
+  PixiJsIcon,
   PostgreSQLIcon,
   ReactJsIcon,
   ShadcnIcon,
@@ -40,11 +43,11 @@ interface TechIconConfig {
 const TECH_ICON_CONFIG: Record<string, TechIconConfig> = {
   "Next.js": {
     icon: NextJsIcon,
-    containerClass: "bg-white p-[1px] w-8 h-8 rounded-full",
+    containerClass: "bg-white  w-8 h-8 rounded-full",
   },
   "Tailwind CSS": {
     icon: TailwindIcon,
-    containerClass: "bg-white p-[1px] w-8 h-8 rounded-full",
+    containerClass: "bg-white  w-8 h-8 rounded-full",
   },
   TypeScript: {
     icon: TypeScriptIcon,
@@ -91,6 +94,18 @@ const TECH_ICON_CONFIG: Record<string, TechIconConfig> = {
     icon: PostgreSQLIcon,
     containerClass: "bg-white p-[4px] w-8 h-8 rounded-full",
   },
+  OpenAI: {
+    icon: OpenaiIcon,
+    containerClass: "bg-white p-[4px] w-8 h-8 rounded-full",
+  },
+  Firebase: {
+    icon: FirebaseIcon,
+    containerClass: "bg-white p-[4px] w-8 h-8 rounded-full",
+  },
+  PixiJS: {
+    icon: PixiJsIcon,
+    containerClass: "bg-white p-[4px] w-8 h-8 rounded-full",
+  },
 };
 
 const TechnologyIcon = ({ keyword }: TechnologyIconProps) => {
@@ -123,14 +138,16 @@ const WorkSection = ({
 }: WorkSectionProps) => {
   return (
     <div className="flex justify-end items-center w-full h-[100vh] relative py-8">
-      <h3 className="text-4xl underline font-bold mb-4 absolute left-0 top-6">
+      <h3 className="text-2xl md:text-4xl underline font-bold mb-4 absolute left-0 top-6">
         MY WORKS
       </h3>
-      <div className="flex w-full md:w-3/5 flex-col space-y-6 items-start">
-        <h3 className="text-4xl font-bold text-yellow-600">{title}</h3>
+      <div className="flex w-full md:w-3/5 flex-col space-y-3 md:space-y-6 items-start">
+        <h3 className="text-4xl font-bold text-yellow-600 text-start">
+          {title}
+        </h3>
         <p className="text-gray-300 text-sm/5 text-left ">{des}</p>
         <div className="w-full">
-          <div className="w-full h-auto aspect-[3762/2052] bg-white/80 flex justify-center items-center rounded-lg mb-3 overflow-hidden">
+          <div className="w-full max-w-[720px] h-auto aspect-[3762/2052] bg-white/80 flex justify-center items-center rounded-lg mb-3 overflow-hidden">
             <img
               src={image}
               alt={title}
@@ -142,20 +159,19 @@ const WorkSection = ({
             />
           </div>
 
-          <div className="flex items-center pointer-events-auto">
+          <div className="flex flex-col md:flex-row space-x-2">
             <h3 className="text-gray-300 font-bold text-left">Techs:</h3>
-            {keywords.map((keyword) => (
-              <div
-                key={keyword}
-                className="text-gray-300 px-2 py-1 text-left relative"
-              >
-                <TechnologyIcon keyword={keyword} />
-              </div>
-            ))}
+            <div className="flex flex-wrap space-x-2 items-center pointer-events-auto">
+              {keywords.map((keyword) => (
+                <div key={keyword} className="text-gray-300 text-left relative">
+                  <TechnologyIcon keyword={keyword} />
+                </div>
+              ))}
+            </div>
           </div>
         </div>
 
-        <div className="flex items-center pointer-events-auto space-x-2">
+        <div className="flex flex-col md:flex-row md:items-center pointer-events-auto space-x-2">
           <h3 className="text-gray-300 font-bold text-left">Link:</h3>
           <a
             href={demo}
