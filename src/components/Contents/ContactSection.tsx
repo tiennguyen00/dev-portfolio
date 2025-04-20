@@ -48,7 +48,6 @@ const ContactSection = () => {
         ))}
       </div>
 
-      {/* Warning/greeting message */}
       <div
         className="p-3 md:p-6 border-2 border-yellow-500 rounded-lg max-w-2xl mx-auto text-center"
         style={{
@@ -61,6 +60,16 @@ const ContactSection = () => {
           opportunities and collaborations. Feel free to reach out through any
           of the contact methods above.
         </p>
+      </div>
+      <div className="flex justify-center items-center">
+        <a
+          href="https://www.dropbox.com/scl/fi/jcdgb1qcrl50zcns3vtlf/Nguyen_Huu_Tien_Frontend.pdf"
+          download="TienNguyen_Frontend.pdf"
+          className=" text-white my-2 rounded-md underline transition-colors"
+          target="_blank"
+        >
+          Download my CV
+        </a>
       </div>
     </div>
   );

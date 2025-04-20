@@ -16,7 +16,9 @@ const MobileUI = ({
     // Create a GSAP ticker that updates the indicator height directly
     const updateIndicator = () => {
       if (indicatorRef.current && scrollProgress.current !== undefined) {
-        indicatorRef.current.style.height = `${scrollProgress.current * 100}%`;
+        indicatorRef.current.style.height = `${
+          scrollProgress.current * 100 + 1
+        }%`;
       }
     };
 
@@ -33,11 +35,14 @@ const MobileUI = ({
       <div className="fixed top-1/2 -translate-y-1/2 right-3 w-[2px] h-1/2">
         <div
           ref={indicatorRef}
-          className="w-full bg-yellow-600"
+          className="w-full relative bg-yellow-600"
           style={{
-            height: "0%",
+            height: "1%",
           }}
-        />
+        >
+          <div className="absolute top-0 left-1/2 -translate-x-1/2 w-2 h-2 rounded-full bg-yellow-600"></div>
+          <div className="absolute bottom-0 left-1/2 -translate-x-1/2 w-2 h-2 rounded-full bg-yellow-600"></div>
+        </div>
       </div>
     </div>
   );
