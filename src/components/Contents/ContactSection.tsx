@@ -63,7 +63,7 @@ const ContactSection = () => {
       </div>
       <div className="flex justify-center items-center">
         <a
-          href="https://www.dropbox.com/scl/fi/jcdgb1qcrl50zcns3vtlf/Nguyen_Huu_Tien_Frontend.pdf"
+          href="https://drive.google.com/file/d/1NDI2F_nnPQWF59HaVTR5AqHnb2mPpN_c/view?usp=sharing"
           download="TienNguyen_Frontend.pdf"
           className=" text-white my-2 rounded-md underline transition-colors"
           target="_blank"
