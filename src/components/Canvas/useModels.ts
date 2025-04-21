@@ -14,7 +14,7 @@ const useModels = () => {
   const isMobile = useMediaQuery({ query: "(max-width: 560px)" });
 
   useEffect(() => {
-    console.log(isMobile);
+    console.log("isMobile: ", isMobile);
     if (!isMobile) {
       MODEL_PATHS.forEach((path) => useGLTF.preload(path));
     }

@@ -11,6 +11,7 @@ import wireframeVertexShader from "./shaders/wireframe/vertex.vert";
 import wireframeFragmentShader from "./shaders/wireframe/fragment.frag";
 import { createPositionTexture, resamplePositions } from "./utils/textureUtils";
 import Horse from "./Horse";
+import Michelle from "./Michelle";
 import useModels from "./useModels";
 import useDataPosition from "./useDataPosition";
 const size = 64,
@@ -526,6 +527,8 @@ const Experience = ({
         e2Scene={e2Scene}
         horsePath={horsePath}
       />
+
+      <Michelle />
 
       {createPortal(
         <points>
