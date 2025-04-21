@@ -2,7 +2,6 @@ import { useAnimations, useGLTF } from "@react-three/drei";
 import { useEffect, useRef } from "react";
 import * as THREE from "three/webgpu";
 import { useFrame, useThree } from "@react-three/fiber";
-import { GLTFLoader } from "three/addons/loaders/GLTFLoader.js";
 
 // Define a type for our particle references
 type ParticleRef = {
@@ -18,7 +17,6 @@ const Michelle = () => {
   );
 
   const { clips, mixer } = useAnimations(michelleAnimations, michelleScene);
-  let mixer2;
 
   // Type the ref properly to avoid errors
   const particlesRef = useRef<ParticleRef[]>([]);
@@ -31,8 +29,6 @@ const Michelle = () => {
 
   useEffect(() => {
     mixer.clipAction(clips[0]).play();
-    const loader = new GLTFLoader();
-    loader.load("models/gltf/Michelle.glb", function (gltf) {});
     michelleScene.traverse((child) => {
       // TypeScript type guard for SkinnedMesh
       if (child.type === "SkinnedMesh") {
@@ -224,7 +220,11 @@ const Michelle = () => {
     });
   });
 
-  return <>{/* <primitive object={michelleScene} scale={10} /> */}</>;
+  return (
+    <>
+      <primitive object={michelleScene} scale={10} />
+    </>
+  );
 };
 
 export default Michelle;
